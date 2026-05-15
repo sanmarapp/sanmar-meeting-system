@@ -1,0 +1,13 @@
+{
+  "name": "@sanmar/brand-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sanmar Properties brand system — colors, typography, and base components",
+  "main": "components.css",
+  "files": [
+    "colors.json",
+    "typography.json",
+    "tailwind.config.js",
+    "components.css"
+  ]
+}

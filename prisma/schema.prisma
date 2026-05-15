@@ -1,0 +1,123 @@
+// Prisma Schema - Sanmar Meeting System
+// https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+  STAFF
+  SALES
+  CSD
+}
+
+enum BookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  COMPLETED
+}
+
+enum BookingType {
+  MEETING_ROOM
+  SITE_VISIT
+}
+
+enum LocationType {
+  TOWER_ONE_CHITTAGONG
+  TOWER_TWO_DHAKA
+}
+
+// ─────────────────────────────────────────
+// MODELS
+// ─────────────────────────────────────────
+
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  phone       String?
+  password    String
+  role        UserRole @default(STAFF)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bookings    Booking[]
+  approvals   Booking[] @relation("ApprovedBy")
+
+  @@map("users")
+}
+
+model MeetingRoom {
+  id          String       @id @default(cuid())
+  name        String
+  location    LocationType
+  capacity    Int
+  amenities   String[]
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  bookings    Booking[]
+
+  @@map("meeting_rooms")
+}
+
+model Project {
+  id                  String       @id @default(cuid())
+  name                String
+  location            LocationType
+  address             String?
+  hasMarketingSuite   Boolean      @default(false)
+  isActive            Boolean      @default(true)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  siteVisits          Booking[]
+
+  @@map("projects")
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  type          BookingType
+  status        BookingStatus @default(PENDING)
+  title         String
+  description   String?
+  startTime     DateTime
+  endTime       DateTime
+  attendees     Int           @default(1)
+  notes         String?
+
+  // Relations
+  requestedById String
+  requestedBy   User          @relation(fields: [requestedById], references: [id])
+
+  approvedById  String?
+  approvedBy    User?         @relation("ApprovedBy", fields: [approvedById], references: [id])
+
+  meetingRoomId String?
+  meetingRoom   MeetingRoom?  @relation(fields: [meetingRoomId], references: [id])
+
+  projectId     String?
+  project       Project?      @relation(fields: [projectId], references: [id])
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("bookings")
+}
