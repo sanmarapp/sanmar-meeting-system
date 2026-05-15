@@ -1,55 +1,37 @@
-/* Sanmar Brand System - Base Component Styles */
-
-@layer base {
-  :root {
-    --color-primary: #1a4bff;
-    --color-secondary: #d4882a;
-    --color-neutral-bg: #f8f9fa;
-    --font-sans: 'Inter', 'Segoe UI', sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
-    --radius-sm: 4px;
-    --radius-md: 8px;
-    --radius-lg: 12px;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
-  }
-
-  body {
-    font-family: var(--font-sans);
-    background-color: var(--color-neutral-bg);
-    color: #212529;
-  }
+/* Sanmar Brand Component Styles */
+.btn-primary {
+  @apply bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white font-medium py-3 px-6 rounded-sanmar transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed;
 }
-
-@layer components {
-  /* Buttons */
-  .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-  .btn-primary {
-    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
-  }
-  .btn-secondary {
-    @apply btn bg-secondary-500 text-white hover:bg-secondary-600 focus:ring-secondary-400;
-  }
-  .btn-outline {
-    @apply btn border border-neutral-300 text-neutral-700 hover:bg-neutral-100 focus:ring-primary-500;
-  }
-
-  /* Cards */
-  .card {
-    @apply bg-white rounded-lg border border-neutral-200 shadow-sm p-6;
-  }
-  .card-header {
-    @apply text-lg font-semibold text-neutral-900 mb-4;
-  }
-
-  /* Badges */
-  .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
-  }
-  .badge-pending   { @apply badge bg-yellow-100 text-yellow-800; }
-  .badge-approved  { @apply badge bg-green-100  text-green-800;  }
-  .badge-rejected  { @apply badge bg-red-100    text-red-800;    }
-  .badge-completed { @apply badge bg-blue-100   text-blue-800;   }
+.btn-secondary {
+  @apply bg-white hover:bg-neutral-50 active:bg-neutral-100 text-primary-600 font-medium py-3 px-6 rounded-sanmar border border-primary-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+.btn-ghost {
+  @apply bg-transparent hover:bg-primary-50 active:bg-primary-100 text-primary-600 font-medium py-3 px-6 rounded-sanmar transition-all duration-200;
+}
+.input-sanmar {
+  @apply w-full px-4 py-3 border border-neutral-300 rounded-sanmar focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-colors disabled:bg-neutral-100 disabled:cursor-not-allowed;
+}
+.input-error {
+  @apply border-red-500 focus:border-red-500 focus:ring-red-500/20;
+}
+.card-sanmar {
+  @apply bg-white rounded-sanmar shadow-sm border border-neutral-200 p-6 transition-shadow hover:shadow-md;
+}
+.heading-display {
+  @apply font-display text-primary-900 tracking-tight;
+}
+.text-body {
+  @apply font-body text-neutral-700 leading-relaxed;
+}
+.badge-success {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800;
+}
+.badge-warning {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800;
+}
+.badge-error {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800;
+}
+.badge-info {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800;
 }
