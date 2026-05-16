@@ -1,5 +1,6 @@
-// Prisma Schema - Sanmar Meeting System
-// https://pris.ly/d/prisma-schema
+// Sanmar Meeting & Site Visit Booking System
+// Database: PostgreSQL | ORM: Prisma
+// Multi-location: Tower One Chittagong, Tower Two Dhaka
 
 generator client {
   provider = "prisma-client-js"
@@ -10,114 +11,411 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─────────────────────────────────────────
-// ENUMS
-// ─────────────────────────────────────────
-
-enum UserRole {
-  SUPER_ADMIN
-  ADMIN
-  MANAGER
-  STAFF
-  SALES
-  CSD
-}
-
-enum BookingStatus {
-  PENDING
-  APPROVED
-  REJECTED
-  CANCELLED
-  COMPLETED
-}
-
-enum BookingType {
-  MEETING_ROOM
-  SITE_VISIT
-}
-
-enum LocationType {
-  TOWER_ONE_CHITTAGONG
-  TOWER_TWO_DHAKA
-}
-
-// ─────────────────────────────────────────
-// MODELS
-// ─────────────────────────────────────────
+// ========================================
+// USER MANAGEMENT
+// ========================================
 
 model User {
-  id          String   @id @default(cuid())
-  name        String
-  email       String   @unique
-  phone       String?
-  password    String
-  role        UserRole @default(STAFF)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  email           String   @unique
+  name            String
+  phone           String?
+  password        String   // Hashed with bcrypt
 
-  bookings    Booking[]
-  approvals   Booking[] @relation("ApprovedBy")
+  employeeId      String?   @map("employee_id")
+  designation     String?
+  whatsappNumber  String?   @map("whatsapp_number")
 
+  role            UserRole
+  department      Department? @relation(fields: [departmentId], references: [id])
+  departmentId    String?   @map("department_id")
+
+  // Notification preferences
+  notifyEmail     Boolean   @default(true) @map("notify_email")
+  notifyWhatsapp  Boolean   @default(true) @map("notify_whatsapp")
+
+  // Multi-location access
+  locations       Location[]
+
+  // Relationships
+  bookingsCreated Booking[] @relation("BookingCreator")
+  approvalsGiven  Booking[] @relation("Approver")
+  siteVisitsBooked SiteVisit[] @relation("SalesRep")
+  sitesManaged    ProjectSite[] @relation("SiteAdmin")
+
+  isActive        Boolean   @default(true) @map("is_active")
+  mustChangePassword Boolean @default(true) @map("must_change_password")
+
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  lastLoginAt     DateTime? @map("last_login_at")
+
+  @@index([email])
+  @@index([phone])
+  @@index([departmentId])
+  @@index([employeeId])
   @@map("users")
 }
 
-model MeetingRoom {
+enum UserRole {
+  ADMIN           // Master Admin (max 3)
+  DEPT_MANAGER    // HOD
+  EMPLOYEE        // Regular staff
+  RECEPTIONIST    // Front desk
+  SITE_ADMIN      // Project site manager
+  CORPORATE_ADMIN // Corporate Admin
+}
+
+model Department {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  emailGroup      String?  @map("email_group")
+  whatsappGroupId String?  @map("whatsapp_group_id")
+
+  members         User[]
+  bookings        Booking[]
+
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("departments")
+}
+
+model Location {
   id          String       @id @default(cuid())
-  name        String
-  location    LocationType
-  capacity    Int
-  amenities   String[]
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  name        String       // "Tower One Chittagong", "Tower Two Dhaka"
+  type        LocationType
+  city        String       // "Chittagong" | "Dhaka"
+  address     String
 
-  bookings    Booking[]
+  rooms       Room[]
+  users       User[]
 
-  @@map("meeting_rooms")
+  isActive    Boolean      @default(true) @map("is_active")
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  @@map("locations")
 }
 
-model Project {
-  id                  String       @id @default(cuid())
-  name                String
-  location            LocationType
-  address             String?
-  hasMarketingSuite   Boolean      @default(false)
-  isActive            Boolean      @default(true)
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
-
-  siteVisits          Booking[]
-
-  @@map("projects")
+enum LocationType {
+  OFFICE          // Tower offices
+  PROJECT_SITE    // Construction sites
+  EXTERNAL_VENUE  // Third-party venues
 }
+
+// ========================================
+// MEETING ROOMS (Office Bookings)
+// ========================================
+
+model Room {
+  id              String   @id @default(cuid())
+  location        Location @relation(fields: [locationId], references: [id])
+  locationId      String   @map("location_id")
+
+  roomName        String   @map("room_name") // "Board Room", "PRAGUE", "LONDON"
+  floor           String   // "Floor 15", "Floor 16"
+  description     String?
+  capacity        Int
+  roomType        RoomType @map("room_type")
+  isBoardRoom     Boolean  @default(false) @map("is_board_room")
+
+  bookings        Booking[]
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([locationId])
+  @@index([isBoardRoom])
+  @@map("rooms")
+}
+
+enum RoomType {
+  internal    // Internal meetings only
+  external    // External client meetings
+  board       // Board room
+  conference  // General conference
+  training    // Training rooms
+}
+
+// ========================================
+// OFFICE BOOKINGS
+// ========================================
 
 model Booking {
-  id            String        @id @default(cuid())
-  type          BookingType
-  status        BookingStatus @default(PENDING)
-  title         String
-  description   String?
-  startTime     DateTime
-  endTime       DateTime
-  attendees     Int           @default(1)
-  notes         String?
+  id              String   @id @default(cuid())
 
-  // Relations
-  requestedById String
-  requestedBy   User          @relation(fields: [requestedById], references: [id])
+  room            Room     @relation(fields: [roomId], references: [id])
+  roomId          String   @map("room_id")
 
-  approvedById  String?
-  approvedBy    User?         @relation("ApprovedBy", fields: [approvedById], references: [id])
+  title           String
+  meetingType     MeetingType @map("meeting_type")
+  attendeesCount  Int      @default(1) @map("attendees_count")
 
-  meetingRoomId String?
-  meetingRoom   MeetingRoom?  @relation(fields: [meetingRoomId], references: [id])
+  startTime       DateTime @map("start_time")
+  endTime         DateTime @map("end_time")
+  durationMinutes Int      @map("duration_minutes")
+  isAllDay        Boolean  @default(false) @map("is_all_day")
 
-  projectId     String?
-  project       Project?      @relation(fields: [projectId], references: [id])
+  // Requester
+  createdBy       User     @relation("BookingCreator", fields: [createdById], references: [id])
+  createdById     String   @map("created_by_id")
 
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  department      Department @relation(fields: [departmentId], references: [id])
+  departmentId    String   @map("department_id")
 
+  // Attendees (JSON array of participant objects)
+  participants    Json     @default("[]")
+
+  // Approval workflow (Board Room requires HOD + Admin approval)
+  requiresApproval Boolean  @default(false) @map("requires_approval")
+  approver        User?    @relation("Approver", fields: [approverId], references: [id])
+  approverId      String?  @map("approver_id")
+  approvalStatus  ApprovalStatus @default(not_required) @map("approval_status")
+  approvedAt      DateTime? @map("approved_at")
+
+  // Refreshment requests (simple boolean flags)
+  needsLaptop     Boolean  @default(false) @map("needs_laptop")
+  needsTeaCoffee  Boolean  @default(false) @map("needs_tea_coffee")
+  needsCookies    Boolean  @default(false) @map("needs_cookies")
+  needsSnacks     Boolean  @default(false) @map("needs_snacks")
+  needsLunch      Boolean  @default(false) @map("needs_lunch")
+  lunchMenu       String?  @map("lunch_menu")
+  refreshmentCombo String? @map("refreshment_combo") // Legacy field
+
+  // Arrangement tracking (Corporate Admin manages)
+  arrangementStatus ArrangementStatus @default(not_required) @map("arrangement_status")
+  arrangementNotes String? @map("arrangement_notes")
+  arrangementUpdatedBy String? @map("arrangement_updated_by")
+  arrangementUpdatedAt DateTime? @map("arrangement_updated_at")
+
+  status          BookingStatus
+  notes           String?
+
+  // Notification tracking (JSON: which notifications were sent)
+  notificationsSent Json   @default("{}") @map("notifications_sent")
+
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([roomId])
+  @@index([createdById])
+  @@index([startTime])
+  @@index([status])
+  @@index([departmentId])
   @@map("bookings")
+}
+
+enum MeetingType {
+  internal  // Internal team meetings
+  external  // Client/vendor meetings
+}
+
+enum BookingStatus {
+  pending_approval // Waiting for HOD/Admin approval
+  confirmed        // Approved and confirmed
+  in_progress      // Currently happening
+  completed        // Finished
+  cancelled        // Cancelled by user
+}
+
+enum ApprovalStatus {
+  not_required    // Regular rooms
+  pending_hod     // Waiting for HOD approval
+  pending_admin   // HOD approved, waiting for Admin
+  approved        // Fully approved
+  rejected        // Rejected by approver
+}
+
+enum ArrangementStatus {
+  not_required // No refreshments/arrangements needed
+  pending      // Request submitted, waiting for Corporate Admin
+  confirmed    // Corporate Admin confirmed arrangements
+  in_progress  // Arrangements being prepared
+  completed    // All arrangements completed
+}
+
+// ========================================
+// CLIENT MANAGEMENT (for Site Visits)
+// ========================================
+
+model Client {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String   @unique
+  email       String?
+
+  source      String?  // "Phone Call", "Walk-in", "Referral", "Website"
+  interestedProjects String[] @map("interested_projects") // Array of project IDs
+  budgetRange String?  @map("budget_range")
+  notes       String?
+
+  siteVisits  SiteVisit[]
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([phone])
+  @@map("clients")
+}
+
+// ========================================
+// PROJECT SITES & SITE VISITS
+// ========================================
+
+model ProjectSite {
+  id              String   @id @default(cuid())
+  name            String   // "Sanmar Green Park", "One Gulshan"
+  location        String   // "Chittagong" | "Dhaka"
+  address         String
+
+  status          ProjectStatus
+
+  // Marketing Suite (Admin configurable)
+  hasMarketingSuite Boolean @default(false) @map("has_marketing_suite")
+  marketingSuiteCapacity Int? @map("marketing_suite_capacity")
+  marketingSuiteNotes String? @map("marketing_suite_notes")
+
+  // Visit configuration (Admin controls)
+  allowVisits     Boolean  @default(true) @map("allow_visits")
+  isVisitReady    Boolean  @default(false) @map("is_visit_ready")
+
+  // Site management
+  siteAdmin       User     @relation("SiteAdmin", fields: [siteAdminId], references: [id])
+  siteAdminId     String   @map("site_admin_id")
+
+  // Project details (JSON for flexibility)
+  projectDetails  Json     @default("{}") @map("project_details")
+  // Example: {"totalUnits": 120, "availableUnits": 45, "priceRange": "8000-12000 BDT/sqft", "amenities": [...]}
+
+  visits          SiteVisit[]
+  isActive        Boolean  @default(true) @map("is_active")
+
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([location])
+  @@index([status])
+  @@index([siteAdminId])
+  @@map("project_sites")
+}
+
+enum ProjectStatus {
+  COMPLETED  // Handed over
+  ONGOING    // Under construction
+  UPCOMING   // Planning/approval stage
+}
+
+model SiteVisit {
+  id              String   @id @default(cuid())
+
+  // Client details
+  client          Client   @relation(fields: [clientId], references: [id])
+  clientId        String   @map("client_id")
+  partySize       Int      @default(1) @map("party_size")
+
+  // Site details
+  site            ProjectSite @relation(fields: [siteId], references: [id])
+  siteId          String   @map("site_id")
+
+  // Booking details
+  visitDate       DateTime @map("visit_date")
+  visitTime       String   @map("visit_time") // "10:00 AM", "2:30 PM"
+
+  // Sales/CSD rep who booked
+  bookedBy        User     @relation("SalesRep", fields: [bookedById], references: [id])
+  bookedById      String   @map("booked_by_id")
+
+  // Site preparation checklist (JSON)
+  preparationChecklist Json @default("{\"suite_cleaned\":false,\"food_arranged\":false,\"presentation_ready\":false,\"demo_flat_ready\":false}") @map("preparation_checklist")
+  siteReadyStatus SiteReadyStatus @default(PENDING) @map("site_ready_status")
+
+  specialRequirements String? @map("special_requirements")
+
+  status          VisitStatus
+  completionNotes String? @map("completion_notes")
+
+  notificationsSent Json   @default("{}") @map("notifications_sent")
+
+  createdAt       DateTime @default(now()) @map("created_at")
+  completedAt     DateTime? @map("completed_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([siteId])
+  @@index([clientId])
+  @@index([visitDate])
+  @@index([status])
+  @@map("site_visits")
+}
+
+enum SiteReadyStatus {
+  PENDING            // Site admin not yet notified
+  PREPARING          // Site admin preparing
+  READY              // Site ready for visit
+  VISIT_IN_PROGRESS  // Visit currently happening
+  COMPLETED          // Visit completed
+}
+
+enum VisitStatus {
+  SCHEDULED      // Visit scheduled
+  CONFIRMED      // Client confirmed attendance
+  CLIENT_NO_SHOW // Client didn't show up
+  CANCELLED      // Cancelled by sales/client
+  COMPLETED      // Visit completed successfully
+}
+
+// ========================================
+// ADMIN CONFIGURATION
+// ========================================
+
+model ApprovalRule {
+  id          String   @id @default(cuid())
+  name        String
+
+  // Conditions (JSON for flexibility)
+  conditions  Json
+  // Example: {"bookingType": "board", "duration": {"greaterThan": 120}, "department": "Sales"}
+
+  approverRole String   @map("approver_role") // "DEPT_MANAGER", "ADMIN"
+  isActive    Boolean  @default(true) @map("is_active")
+  priority    Int      @default(0) // Higher priority rules checked first
+
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("approval_rules")
+}
+
+model NotificationTemplate {
+  id          String   @id @default(cuid())
+  channel     String   // "WHATSAPP", "EMAIL"
+  trigger     String   // "BOOKING_CONFIRMED", "VISIT_REMINDER", "SITE_READY"
+
+  subject     String?  // For email
+  body        String   @db.Text // Template with {{variables}}
+
+  language    String   @default("en")
+  isActive    Boolean  @default(true) @map("is_active")
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("notification_templates")
+}
+
+// ========================================
+// AUDIT LOG
+// ========================================
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  action      String   // "BOOKING_CREATED", "VISIT_CANCELLED", "APPROVAL_GIVEN"
+  entity      String   // "Booking", "SiteVisit", "User"
+  entityId    String   @map("entity_id")
+  changes     Json     // What changed
+  ipAddress   String?  @map("ip_address")
+
+  timestamp   DateTime @default(now())
+
+  @@index([userId])
+  @@index([timestamp])
+  @@index([entity, entityId])
+  @@map("audit_logs")
 }
