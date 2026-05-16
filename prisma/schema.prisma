@@ -83,7 +83,7 @@ model Department {
 
 model Location {
   id      String       @id @default(cuid())
-  name    String // "Tower One Chittagong", "Tower Two Dhaka"
+  name    String       @unique // "Tower One Chittagong", "Tower Two Dhaka"
   type    LocationType
   city    String // "Chittagong" | "Dhaka"
   address String
@@ -112,7 +112,7 @@ model Room {
   location   Location @relation(fields: [locationId], references: [id])
   locationId String   @map("location_id")
 
-  roomName    String   @map("room_name") // "Board Room", "PRAGUE", "LONDON"
+  roomName    String   @unique @map("room_name") // "Board Room", "PRAGUE", "LONDON"
   floor       String // "Floor 15", "Floor 16"
   description String?
   capacity    Int
@@ -263,7 +263,7 @@ model Client {
 
 model ProjectSite {
   id       String @id @default(cuid())
-  name     String // "Sanmar Green Park", "One Gulshan"
+  name     String @unique // "Sanmar Green Park", "One Gulshan"
   location String // "Chittagong" | "Dhaka"
   address  String
 
@@ -385,7 +385,7 @@ model ApprovalRule {
 model NotificationTemplate {
   id      String @id @default(cuid())
   channel String // "WHATSAPP", "EMAIL"
-  trigger String // "BOOKING_CONFIRMED", "VISIT_REMINDER", "SITE_READY"
+  trigger String @unique // "BOOKING_CONFIRMED", "VISIT_REMINDER", "SITE_READY"
 
   subject String? // For email
   body    String  @db.Text // Template with {{variables}}
