@@ -6,6 +6,12 @@ import { DashboardPage } from './pages/DashboardPage';
 import { BookingsPage }       from './pages/BookingsPage';
 import { NewBookingPage }     from './pages/NewBookingPage';
 import { BookingDetailPage }  from './pages/BookingDetailPage';
+import { RoomsPage }          from './pages/RoomsPage';
+import { SiteVisitsPage }     from './pages/SiteVisitsPage';
+import { NewSiteVisitPage }   from './pages/NewSiteVisitPage';
+import { ApprovalsPage }      from './pages/ApprovalsPage';
+import { UsersPage }          from './pages/UsersPage';
+import { SettingsPage }       from './pages/SettingsPage';
 
 // ─── Route guard ───────────────────────────────────────────────
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -49,30 +55,12 @@ function App() {
         path="/bookings/:id"
         element={<PrivateRoute><BookingDetailPage /></PrivateRoute>}
       />
-      <Route
-        path="/rooms"
-        element={<PrivateRoute><ComingSoon title="Rooms" /></PrivateRoute>}
-      />
-      <Route
-        path="/site-visits"
-        element={<PrivateRoute><ComingSoon title="Site Visits" /></PrivateRoute>}
-      />
-      <Route
-        path="/site-visits/new"
-        element={<PrivateRoute><ComingSoon title="Schedule Site Visit" /></PrivateRoute>}
-      />
-      <Route
-        path="/users"
-        element={<PrivateRoute><ComingSoon title="Users" /></PrivateRoute>}
-      />
-      <Route
-        path="/approvals"
-        element={<PrivateRoute><ComingSoon title="Approvals" /></PrivateRoute>}
-      />
-      <Route
-        path="/settings"
-        element={<PrivateRoute><ComingSoon title="Settings" /></PrivateRoute>}
-      />
+      <Route path="/rooms"           element={<PrivateRoute><RoomsPage /></PrivateRoute>} />
+      <Route path="/site-visits"     element={<PrivateRoute><SiteVisitsPage /></PrivateRoute>} />
+      <Route path="/site-visits/new" element={<PrivateRoute><NewSiteVisitPage /></PrivateRoute>} />
+      <Route path="/users"           element={<PrivateRoute><UsersPage /></PrivateRoute>} />
+      <Route path="/approvals"       element={<PrivateRoute><ApprovalsPage /></PrivateRoute>} />
+      <Route path="/settings"        element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
 
       {/* Default redirects */}
       <Route path="/"  element={<Navigate to="/dashboard" replace />} />

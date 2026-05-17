@@ -16,25 +16,40 @@ git add -A
 
 Write-Host "Committing..." -ForegroundColor Cyan
 $msg = @"
-feat(frontend): NewBookingPage and BookingDetailPage
+feat(frontend): all remaining pages — rooms, site visits, approvals, users, settings
 
-NewBookingPage (/bookings/new):
-- Two-column layout: form sections left, live summary card right
-- Sections: Meeting Details, Room and Schedule, Attendees and Setup
-- Room picker loads from API with capacity and location info
-- Date, start/end time inputs with live duration feedback
-- Refreshments checkbox, room arrangement selector, notes textarea
-- Client-side validation with inline error messages
-- useMutation submit with toast success/error, redirect to detail
+RoomsPage (/rooms):
+- Card grid (3-col) with type color strip, capacity, amenities, location
+- Type filter tabs plus search bar, client-side filtering
+- Amenity icons mapped from keywords, Book CTA on each card
 
-BookingDetailPage (/bookings/:id):
-- Full meeting detail grid: room, date, time, duration, attendees
-- Status timeline: Submitted / Approved / Completed (or Rejected / Cancelled)
-- Admin/Manager actions: Approve button, Reject with optional reason form
-- Owner actions: Cancel with inline confirmation step
-- Approver record card shown after approval or rejection
-- Skeleton loading state, not-found fallback
-- React Query cache invalidation after each mutation
+SiteVisitsPage (/site-visits):
+- Table with status tabs: All / Scheduled / Completed / Cancelled / No Show
+- Columns: Client, Site, Date and Time, Booked By, Status, chevron
+- Search and date filters with clear button
+
+NewSiteVisitPage (/site-visits/new):
+- Client picker and site picker loaded from API
+- Date and time inputs with live summary card
+- Notes textarea, validation, useMutation with toast and redirect
+
+ApprovalsPage (/approvals):
+- Pending bookings list with inline Approve and Reject buttons
+- Admin/Manager only (access-restricted for other roles)
+- Warning banner showing count, React Query cache invalidation
+
+UsersPage (/users):
+- Table with avatar initials, role badge with icon, department, last login
+- Role filter tabs plus search, Admin only access guard
+- You badge on current user row
+
+SettingsPage (/settings):
+- Profile card: read-only name, email, role, department, employee ID
+- Notifications: read-only toggles for email and WhatsApp
+- Change password: current and new password with show/hide, validation
+- Session card with last login time and Sign Out button
+
+New services: userService, clientService, siteService
 "@
 git commit -m $msg
 
