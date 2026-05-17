@@ -84,7 +84,7 @@ export function ApprovalsPage() {
         {/* ── Summary banner ── */}
         {!isLoading && total > 0 && (
           <div
-            className="flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-normal"
             style={{ background: 'rgba(245,158,11,0.06)', borderColor: 'rgba(245,158,11,0.2)', color: '#92400E' }}
           >
             <CheckCircle2 size={16} strokeWidth={1.75} className="text-warning shrink-0" />
@@ -154,14 +154,14 @@ function ApprovalItem({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-neutral-900 truncate">{b.title}</p>
+              <p className="font-normal text-neutral-900 truncate">{b.title}</p>
               <p className="text-xs text-neutral-400 mt-0.5">
                 {MEETING_TYPE_LABEL[b.meetingType] ?? b.meetingType}
               </p>
             </div>
             <button
               onClick={onView}
-              className="flex items-center gap-1 text-xs text-primary-500 hover:text-primary-700 font-medium transition-colors shrink-0"
+              className="flex items-center gap-1 text-xs text-primary-500 hover:text-primary-700 font-normal transition-colors shrink-0"
             >
               View <ChevronRight size={12} strokeWidth={2} />
             </button>

@@ -41,7 +41,7 @@ export default {
       },
       fontFamily: {
         display: ['"Playfair Display"', 'Georgia', 'serif'],
-        sans:    ['"DM Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        sans:    ['"Brown Pro"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
         mono:    ['"Fira Code"', '"Fira Mono"', 'monospace'],
       },
       fontSize: {

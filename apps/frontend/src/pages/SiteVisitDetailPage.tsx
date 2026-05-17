@@ -138,7 +138,7 @@ export function SiteVisitDetailPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                 <DetailRow icon={<User size={15} strokeWidth={1.75} />} label="Client">
-                  <p className="text-sm font-medium text-neutral-800">{visit.client.name}</p>
+                  <p className="text-sm font-normal text-neutral-800">{visit.client.name}</p>
                   {visit.client.email && (
                     <a href={`mailto:${visit.client.email}`}
                       className="flex items-center gap-1 text-xs text-primary-500 hover:text-primary-700 mt-0.5 transition-colors">
@@ -154,22 +154,22 @@ export function SiteVisitDetailPage() {
                 </DetailRow>
 
                 <DetailRow icon={<MapPin size={15} strokeWidth={1.75} />} label="Property / Site">
-                  <p className="text-sm font-medium text-neutral-800">{visit.site.name}</p>
+                  <p className="text-sm font-normal text-neutral-800">{visit.site.name}</p>
                   {visit.site.address && (
                     <p className="text-xs text-neutral-400 mt-0.5">{visit.site.address}</p>
                   )}
                 </DetailRow>
 
                 <DetailRow icon={<CalendarDays size={15} strokeWidth={1.75} />} label="Visit Date">
-                  <p className="text-sm font-medium text-neutral-800">{fmtDate(visit.visitDate)}</p>
+                  <p className="text-sm font-normal text-neutral-800">{fmtDate(visit.visitDate)}</p>
                 </DetailRow>
 
                 <DetailRow icon={<Clock size={15} strokeWidth={1.75} />} label="Visit Time">
-                  <p className="text-sm font-medium text-neutral-800">{fmtTime(visit.visitTime)}</p>
+                  <p className="text-sm font-normal text-neutral-800">{fmtTime(visit.visitTime)}</p>
                 </DetailRow>
 
                 <DetailRow icon={<User size={15} strokeWidth={1.75} />} label="Booked By">
-                  <p className="text-sm font-medium text-neutral-800">{visit.bookedBy.name}</p>
+                  <p className="text-sm font-normal text-neutral-800">{visit.bookedBy.name}</p>
                 </DetailRow>
 
                 {siteReady && (
@@ -202,7 +202,7 @@ export function SiteVisitDetailPage() {
                     <AlertTriangle size={16} strokeWidth={1.75} className="text-danger" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-neutral-800">
+                    <p className="text-sm font-normal text-neutral-800">
                       {visit.status === 'CANCELLED' ? 'Visit Cancelled' : 'Client No Show'}
                     </p>
                     <p className="text-xs text-neutral-400 mt-0.5">
@@ -222,7 +222,7 @@ export function SiteVisitDetailPage() {
             {/* Status card */}
             <Card>
               <div className="flex items-center justify-between mb-4">
-                <p className="text-sm font-semibold text-neutral-700">Status</p>
+                <p className="text-sm font-normal text-neutral-700">Status</p>
                 <Badge variant={visitStatusVariant(visit.status)}>
                   {VISIT_STATUS_LABEL[visit.status] ?? visit.status}
                 </Badge>
@@ -296,7 +296,7 @@ function MetaRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-2">
       <dt className="text-xs text-neutral-400">{label}</dt>
-      <dd className="text-xs font-medium text-neutral-600 text-right">{value}</dd>
+      <dd className="text-xs font-normal text-neutral-600 text-right">{value}</dd>
     </div>
   );
 }
@@ -310,7 +310,7 @@ function VisitTimeline({ status }: { status: string }) {
     return (
       <div className="flex items-center gap-2">
         <div className="w-2 h-2 rounded-full bg-danger shrink-0" />
-        <span className="text-xs text-danger font-medium">
+        <span className="text-xs text-danger font-normal">
           {cancelled ? 'Visit cancelled' : 'Client no-show'}
         </span>
       </div>
@@ -339,7 +339,7 @@ function VisitTimeline({ status }: { status: string }) {
               )}
               {current && <div className="w-1.5 h-1.5 rounded-full bg-primary-500" />}
             </div>
-            <span className={`text-xs font-medium ${done ? 'text-neutral-700' : 'text-neutral-300'}`}>{step.label}</span>
+            <span className={`text-xs font-normal ${done ? 'text-neutral-700' : 'text-neutral-300'}`}>{step.label}</span>
           </div>
         );
       })}

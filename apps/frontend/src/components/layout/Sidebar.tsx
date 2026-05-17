@@ -58,7 +58,7 @@ export function Sidebar() {
       {/* ── Logo ── */}
       <div className="px-5 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(201,169,122,0.12)' }}>
         <img src="/logo.svg" alt="Sanmar" className="h-7 w-auto" draggable={false} />
-        <p className="text-[9px] font-semibold uppercase tracking-[0.12em] mt-1.5 pl-0.5"
+        <p className="text-[9px] font-normal uppercase tracking-[0.12em] mt-1.5 pl-0.5"
           style={{ color: 'rgba(201,169,122,0.5)' }}>
           Meeting System
         </p>
@@ -73,7 +73,7 @@ export function Sidebar() {
         {isAdmin && (
           <>
             <div className="px-3 pt-4 pb-1">
-              <span className="text-[9px] font-semibold uppercase tracking-[0.1em]"
+              <span className="text-[9px] font-normal uppercase tracking-[0.1em]"
                 style={{ color: 'rgba(255,255,255,0.25)' }}>
                 Manage
               </span>
@@ -92,12 +92,12 @@ export function Sidebar() {
           onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
           onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
         >
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-semibold shrink-0"
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-normal shrink-0"
             style={{ background: 'rgba(201,169,122,0.2)', color: '#C9A97A' }}>
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate" style={{ color: 'rgba(255,255,255,0.9)' }}>{user?.name}</p>
+            <p className="text-sm font-normal truncate" style={{ color: 'rgba(255,255,255,0.9)' }}>{user?.name}</p>
             <p className="text-xs truncate" style={{ color: 'rgba(255,255,255,0.4)' }}>{user?.role}</p>
           </div>
           <button
@@ -128,7 +128,7 @@ function SidebarLink({ to, icon, label }: { to: string; icon: React.ReactNode; l
     <NavLink to={to}>
       {({ isActive }) => (
         <span
-          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-100 cursor-pointer"
+          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-normal transition-all duration-100 cursor-pointer"
           style={{
             background: isActive ? 'rgba(201,169,122,0.14)' : 'transparent',
             color: isActive ? '#C9A97A' : 'rgba(255,255,255,0.45)',

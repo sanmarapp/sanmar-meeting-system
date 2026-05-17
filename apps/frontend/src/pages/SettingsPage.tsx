@@ -84,7 +84,7 @@ export function SettingsPage() {
           {/* Avatar + name row */}
           <div className="flex items-center gap-4 mb-5">
             <div
-              className="w-14 h-14 rounded-xl flex items-center justify-center text-lg font-semibold shrink-0"
+              className="w-14 h-14 rounded-xl flex items-center justify-center text-lg font-normal shrink-0"
               style={{ background: 'rgba(130,107,82,0.12)', color: '#826B52' }}
             >
               {initials}
@@ -148,7 +148,7 @@ export function SettingsPage() {
           <CardHeader title="Change Password" subtitle="Update your login password. Use at least 8 characters." />
 
           {pwSuccess && (
-            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg mb-4 text-sm font-medium"
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg mb-4 text-sm font-normal"
               style={{ background: 'rgba(34,197,94,0.08)', color: '#15803d', border: '1px solid rgba(34,197,94,0.2)' }}>
               <CheckCircle2 size={14} strokeWidth={2} />
               Password changed successfully.
@@ -216,7 +216,7 @@ export function SettingsPage() {
         <Card padding="sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-neutral-800">Session</p>
+              <p className="text-sm font-normal text-neutral-800">Session</p>
               <p className="text-xs text-neutral-400 mt-0.5">
                 {user?.lastLoginAt
                   ? `Last login: ${new Date(user.lastLoginAt).toLocaleString('en-GB')}`
@@ -245,7 +245,7 @@ function ProfileRow({ icon, label, value }: { icon: React.ReactNode; label: stri
       <span className="text-neutral-300 shrink-0 mt-0.5">{icon}</span>
       <div>
         <p className="text-xs text-neutral-400 mb-0.5">{label}</p>
-        <p className="text-sm font-medium text-neutral-800">{value}</p>
+        <p className="text-sm font-normal text-neutral-800">{value}</p>
       </div>
     </div>
   );
@@ -265,7 +265,7 @@ function ToggleRow({
       <div className="flex items-start gap-2.5">
         <span className="text-neutral-300 shrink-0 mt-0.5">{icon}</span>
         <div>
-          <p className="text-sm font-medium text-neutral-800">{label}</p>
+          <p className="text-sm font-normal text-neutral-800">{label}</p>
           <p className="text-xs text-neutral-400 mt-0.5">{hint}</p>
         </div>
       </div>

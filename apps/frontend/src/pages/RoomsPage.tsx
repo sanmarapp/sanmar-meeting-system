@@ -118,7 +118,7 @@ export function RoomsPage() {
                 <button
                   key={value}
                   onClick={() => setTypeFilter(value as RoomType | 'ALL')}
-                  className="text-sm px-3 py-1.5 rounded-lg font-medium transition-all duration-100 select-none"
+                  className="text-sm px-3 py-1.5 rounded-lg font-normal transition-all duration-100 select-none"
                   style={{
                     background: active ? 'rgba(130,107,82,0.1)' : 'transparent',
                     color:      active ? '#826B52' : 'rgba(0,0,0,0.5)',

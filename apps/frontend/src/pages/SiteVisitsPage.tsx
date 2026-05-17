@@ -110,7 +110,7 @@ export function SiteVisitsPage() {
                 <button
                   key={value}
                   onClick={() => handleStatus(value)}
-                  className="text-sm px-3 py-1.5 rounded-lg font-medium transition-all duration-100 select-none"
+                  className="text-sm px-3 py-1.5 rounded-lg font-normal transition-all duration-100 select-none"
                   style={{
                     background: active ? 'rgba(130,107,82,0.1)' : 'transparent',
                     color: active ? '#826B52' : 'rgba(0,0,0,0.5)',
@@ -159,11 +159,11 @@ export function SiteVisitsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ borderBottom: '1px solid #F0EDE9' }}>
-                  <th className="px-5 py-3 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Client</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Site</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider whitespace-nowrap">Date &amp; Time</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Booked By</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Status</th>
+                  <th className="px-5 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">Client</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">Site</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider whitespace-nowrap">Date &amp; Time</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">Booked By</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">Status</th>
                   <th className="px-4 py-3 w-8" aria-hidden />
                 </tr>
               </thead>
@@ -212,7 +212,7 @@ function VisitRow({ visit: v, onClick }: { visit: SiteVisit; onClick: () => void
     >
       {/* Client */}
       <td className="px-5 py-3.5">
-        <p className="font-medium text-neutral-900">{v.client.name}</p>
+        <p className="font-normal text-neutral-900">{v.client.name}</p>
         {v.client.phone && <p className="text-xs text-neutral-400 mt-0.5">{v.client.phone}</p>}
       </td>
 

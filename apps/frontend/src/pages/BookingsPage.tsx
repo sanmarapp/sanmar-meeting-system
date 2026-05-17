@@ -143,7 +143,7 @@ export function BookingsPage() {
                 <button
                   key={value}
                   onClick={() => handleStatus(value)}
-                  className="text-sm px-3 py-1.5 rounded-lg font-medium transition-all duration-100 select-none"
+                  className="text-sm px-3 py-1.5 rounded-lg font-normal transition-all duration-100 select-none"
                   style={{
                     background: active ? 'rgba(130,107,82,0.1)' : 'transparent',
                     color: active ? '#826B52' : 'rgba(0,0,0,0.5)',
@@ -208,24 +208,24 @@ export function BookingsPage() {
               {/* Head */}
               <thead>
                 <tr style={{ borderBottom: '1px solid #F0EDE9' }}>
-                  <th className="px-5 py-3 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
+                  <th className="px-5 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">
                     Meeting
                   </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">
                     Room
                   </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider whitespace-nowrap">
                     Date &amp; Time
                   </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">
                     <Users size={13} strokeWidth={1.75} className="text-neutral-300" aria-label="Attendees" />
                   </th>
                   {isAdmin && (
-                    <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">
                       Requested By
                     </th>
                   )}
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">
                     Status
                   </th>
                   <th className="px-4 py-3 w-8" aria-hidden />
@@ -327,7 +327,7 @@ function BookingRow({
     >
       {/* Meeting title + type */}
       <td className="px-5 py-3.5">
-        <p className="font-medium text-neutral-900 truncate max-w-[240px]">{b.title}</p>
+        <p className="font-normal text-neutral-900 truncate max-w-[240px]">{b.title}</p>
         <p className="text-xs text-neutral-400 mt-0.5">
           {MEETING_TYPE_LABEL[b.meetingType] ?? b.meetingType}
         </p>

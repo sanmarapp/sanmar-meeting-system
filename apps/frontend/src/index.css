@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Brown Pro Font ─────────────────────────────────────────── */
+@font-face {
+  font-family: 'Brown Pro';
+  src: url('/fonts/BrownPro-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Brown Pro';
+  src: url('/fonts/BrownPro-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ─── Design Tokens ─────────────────────────────────────────── */
 @layer base {
   :root {
@@ -59,7 +75,7 @@
   }
 
   body {
-    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Brown Pro', -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 13px;
     line-height: 1.5;
     color: var(--text-primary);
@@ -76,8 +92,8 @@
     line-height: 1.2;
   }
   h5, h6 {
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 600;
+    font-family: 'Brown Pro', sans-serif;
+    font-weight: 400;
     color: var(--text-primary);
   }
 
@@ -118,7 +134,7 @@
   /* Label utility */
   .label-xs {
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--text-muted);

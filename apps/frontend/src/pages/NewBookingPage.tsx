@@ -194,7 +194,7 @@ export function NewBookingPage() {
 
                   {/* Meeting type */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-neutral-700">Meeting Type</label>
+                    <label className="text-sm font-normal text-neutral-700">Meeting Type</label>
                     <div className="relative">
                       <select
                         value={meetingType}
@@ -227,7 +227,7 @@ export function NewBookingPage() {
                 <div className="space-y-4">
                   {/* Room picker */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-neutral-700">
+                    <label className="text-sm font-normal text-neutral-700">
                       Room <span className="text-danger ml-0.5">*</span>
                     </label>
                     <div className="relative">
@@ -279,7 +279,7 @@ export function NewBookingPage() {
                   {/* Start / end time */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="flex flex-col gap-1">
-                      <label className="text-sm font-medium text-neutral-700">
+                      <label className="text-sm font-normal text-neutral-700">
                         Start Time <span className="text-danger ml-0.5">*</span>
                       </label>
                       <div className="relative">
@@ -296,7 +296,7 @@ export function NewBookingPage() {
                     </div>
 
                     <div className="flex flex-col gap-1">
-                      <label className="text-sm font-medium text-neutral-700">
+                      <label className="text-sm font-normal text-neutral-700">
                         End Time <span className="text-danger ml-0.5">*</span>
                       </label>
                       <div className="relative">
@@ -348,7 +348,7 @@ export function NewBookingPage() {
 
                   {/* Arrangement */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-neutral-700">Room Arrangement</label>
+                    <label className="text-sm font-normal text-neutral-700">Room Arrangement</label>
                     <div className="relative">
                       <select
                         value={arrangement}
@@ -387,7 +387,7 @@ export function NewBookingPage() {
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-neutral-700">Request refreshments</p>
+                      <p className="text-sm font-normal text-neutral-700">Request refreshments</p>
                       <p className="text-xs text-neutral-400 mt-0.5">Tea, coffee, or water will be arranged by the facility team.</p>
                     </div>
                   </label>
@@ -436,7 +436,7 @@ export function NewBookingPage() {
                   {timeValid && (
                     <div className="pl-[22px]">
                       <span
-                        className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium"
+                        className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-normal"
                         style={{ background: 'rgba(130,107,82,0.08)', color: '#826B52' }}
                       >
                         <Clock size={10} strokeWidth={2} /> {duration}
@@ -455,7 +455,7 @@ export function NewBookingPage() {
                 {/* Amenities */}
                 {selectedRoom?.amenities && selectedRoom.amenities.length > 0 && (
                   <>
-                    <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide mb-2">Room Amenities</p>
+                    <p className="text-xs font-normal text-neutral-400 uppercase tracking-wide mb-2">Room Amenities</p>
                     <div className="flex flex-wrap gap-1.5 mb-4">
                       {selectedRoom.amenities.map(a => (
                         <span key={a} className="text-xs px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 border border-neutral-200">
@@ -517,7 +517,7 @@ function SummaryRow({
       <span className="text-neutral-300 shrink-0 mt-0.5">{icon}</span>
       <div className="flex-1 min-w-0">
         <dt className="text-xs text-neutral-400 mb-0.5">{label}</dt>
-        <dd className="text-sm font-medium text-neutral-800">{value}</dd>
+        <dd className="text-sm font-normal text-neutral-800">{value}</dd>
       </div>
     </div>
   );

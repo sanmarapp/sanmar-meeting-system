@@ -24,7 +24,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-sm font-medium text-neutral-700 select-none"
+            className="text-sm font-normal text-neutral-700 select-none"
           >
             {label}
             {props.required && (
@@ -104,7 +104,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="flex flex-col gap-1 w-full">
         {label && (
-          <label htmlFor={inputId} className="text-sm font-medium text-neutral-700">
+          <label htmlFor={inputId} className="text-sm font-normal text-neutral-700">
             {label}
             {props.required && <span className="text-danger ml-0.5">*</span>}
           </label>

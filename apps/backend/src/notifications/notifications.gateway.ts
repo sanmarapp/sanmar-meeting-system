@@ -45,7 +45,7 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
         secret: process.env.JWT_SECRET || 'sanmar-secret',
       });
 
-      const userId: string = payload.sub;
+      const userId: string = payload.userId || payload.sub;
       client.data.userId = userId;
 
       // Register socket for user

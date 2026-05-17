@@ -1,31 +1,258 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable, NotFoundException, BadRequestException, ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
+import { CreateBookingDto } from './dto/create-booking.dto';
+
+// ─── Status mapping (schema → frontend) ─────────────────────────
+function mapStatus(status: string, approvalStatus: string): string {
+  if (approvalStatus === 'rejected') return 'REJECTED';
+  switch (status) {
+    case 'pending_approval': return 'PENDING';
+    case 'confirmed':        return 'APPROVED';
+    case 'in_progress':      return 'APPROVED';
+    case 'completed':        return 'COMPLETED';
+    case 'cancelled':        return 'CANCELLED';
+    default:                 return 'PENDING';
+  }
+}
+
+function mapApprovalStatus(s: string): string {
+  switch (s) {
+    case 'not_required':  return 'not_required';
+    case 'pending_hod':   return 'pending';
+    case 'pending_admin': return 'pending';
+    case 'approved':      return 'approved';
+    case 'rejected':      return 'rejected';
+    default:              return s;
+  }
+}
+
+function transformBooking(b: any) {
+  if (!b) return null;
+  return {
+    ...b,
+    attendeeCount: b.attendeesCount,
+    status: mapStatus(b.status, b.approvalStatus),
+    approvalStatus: mapApprovalStatus(b.approvalStatus),
+    room: b.room ? { ...b.room, name: b.room.roomName, type: b.room.roomType } : b.room,
+  };
+}
+
+const BOOKING_INCLUDE = {
+  room: { include: { location: true } },
+  createdBy: { select: { id: true, name: true, email: true } },
+  department: { select: { id: true, name: true } },
+  approver:   { select: { id: true, name: true } },
+};
 
 @Injectable()
 export class BookingsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notifications: NotificationsGateway,
+  ) {}
 
-  async findAll() {
-    return this.prisma.booking.findMany({
-      include: {
-        room: true,
-        createdBy: true,
-        department: true,
-        approver: true,
-      },
-      orderBy: { startTime: 'desc' },
-    });
+  async findAll(query: {
+    page?: number; limit?: number; status?: string;
+    search?: string; date?: string; roomId?: string;
+  }) {
+    const page  = Number(query.page  ?? 1);
+    const limit = Number(query.limit ?? 20);
+    const skip  = (page - 1) * limit;
+
+    const where: any = {};
+
+    if (query.status) {
+      // Reverse-map frontend status → schema status
+      const statusMap: Record<string, any> = {
+        PENDING:   { status: 'pending_approval' },
+        APPROVED:  { status: { in: ['confirmed', 'in_progress'] } },
+        REJECTED:  { approvalStatus: 'rejected' },
+        COMPLETED: { status: 'completed' },
+        CANCELLED: { status: 'cancelled' },
+      };
+      Object.assign(where, statusMap[query.status] ?? {});
+    }
+
+    if (query.date) {
+      const d = new Date(query.date);
+      const next = new Date(d); next.setDate(next.getDate() + 1);
+      where.startTime = { gte: d, lt: next };
+    }
+
+    if (query.roomId) where.roomId = query.roomId;
+
+    if (query.search) {
+      where.OR = [
+        { title:             { contains: query.search, mode: 'insensitive' } },
+        { createdBy: { name: { contains: query.search, mode: 'insensitive' } } },
+      ];
+    }
+
+    const [items, total] = await Promise.all([
+      this.prisma.booking.findMany({ where, include: BOOKING_INCLUDE, orderBy: { startTime: 'desc' }, skip, take: limit }),
+      this.prisma.booking.count({ where }),
+    ]);
+
+    return { data: items.map(transformBooking), total, page, limit };
   }
 
   async findOne(id: string) {
-    return this.prisma.booking.findUnique({
-      where: { id },
-      include: {
-        room: { include: { location: true } },
-        createdBy: true,
-        department: true,
-        approver: true,
+    const b = await this.prisma.booking.findUnique({ where: { id }, include: BOOKING_INCLUDE });
+    if (!b) throw new NotFoundException('Booking not found');
+    return transformBooking(b);
+  }
+
+  async create(dto: CreateBookingDto, userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { department: true },
+    });
+    if (!user) throw new BadRequestException('User not found');
+    if (!user.departmentId) throw new BadRequestException('User has no department assigned');
+
+    const room = await this.prisma.room.findUnique({ where: { id: dto.roomId } });
+    if (!room || !room.isActive) throw new NotFoundException('Room not found or inactive');
+
+    // Check for conflicts
+    const conflict = await this.prisma.booking.findFirst({
+      where: {
+        roomId: dto.roomId,
+        status: { in: ['pending_approval', 'confirmed', 'in_progress'] },
+        AND: [
+          { startTime: { lt: new Date(dto.endTime) } },
+          { endTime:   { gt: new Date(dto.startTime) } },
+        ],
       },
     });
+    if (conflict) throw new BadRequestException('Room is already booked for this time slot');
+
+    const start = new Date(dto.startTime);
+    const end   = new Date(dto.endTime);
+    const durationMinutes = Math.round((end.getTime() - start.getTime()) / 60000);
+
+    const requiresApproval = room.isBoardRoom || room.roomType === 'board';
+    const status = requiresApproval ? 'pending_approval' : 'confirmed';
+    const approvalStatus = requiresApproval ? 'pending_hod' : 'not_required';
+
+    const booking = await this.prisma.booking.create({
+      data: {
+        title: dto.title,
+        roomId: dto.roomId,
+        startTime: start,
+        endTime: end,
+        durationMinutes,
+        attendeesCount: dto.attendeeCount,
+        meetingType: (dto.meetingType as any) ?? 'internal',
+        createdById: userId,
+        departmentId: user.departmentId,
+        status: status as any,
+        approvalStatus: approvalStatus as any,
+        requiresApproval,
+        notes: dto.notes,
+        needsTeaCoffee: dto.requiresRefreshment ?? false,
+      },
+      include: BOOKING_INCLUDE,
+    });
+
+    // Notify admins/managers of new pending booking
+    if (requiresApproval) {
+      this.notifications.emitToRole('ADMIN', {
+        type: 'pending',
+        title: 'New Booking Awaiting Approval',
+        body: `${user.name} booked ${room.roomName} on ${start.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`,
+        bookingId: booking.id,
+      });
+    }
+
+    return transformBooking(booking);
+  }
+
+  async approve(id: string, approverId: string) {
+    const booking = await this.prisma.booking.findUnique({
+      where: { id }, include: { createdBy: true, room: true },
+    });
+    if (!booking) throw new NotFoundException('Booking not found');
+    if (!['pending_approval', 'pending_hod', 'pending_admin'].includes(booking.status) &&
+        booking.approvalStatus !== 'pending_hod' && booking.approvalStatus !== 'pending_admin') {
+      throw new BadRequestException('Booking is not awaiting approval');
+    }
+
+    const updated = await this.prisma.booking.update({
+      where: { id },
+      data: {
+        status: 'confirmed' as any,
+        approvalStatus: 'approved' as any,
+        approverId,
+        approvedAt: new Date(),
+      },
+      include: BOOKING_INCLUDE,
+    });
+
+    this.notifications.emitToUser(booking.createdById, {
+      type: 'approved',
+      title: 'Booking Approved',
+      body: `Your booking for ${booking.room.roomName} has been approved.`,
+      bookingId: id,
+    });
+
+    return transformBooking(updated);
+  }
+
+  async reject(id: string, approverId: string, reason?: string) {
+    const booking = await this.prisma.booking.findUnique({
+      where: { id }, include: { createdBy: true, room: true },
+    });
+    if (!booking) throw new NotFoundException('Booking not found');
+
+    const updated = await this.prisma.booking.update({
+      where: { id },
+      data: {
+        status: 'cancelled' as any,
+        approvalStatus: 'rejected' as any,
+        approverId,
+        notes: reason ?? booking.notes,
+      },
+      include: BOOKING_INCLUDE,
+    });
+
+    this.notifications.emitToUser(booking.createdById, {
+      type: 'rejected',
+      title: 'Booking Rejected',
+      body: reason
+        ? `Your booking for ${booking.room.roomName} was rejected: ${reason}`
+        : `Your booking for ${booking.room.roomName} was rejected.`,
+      bookingId: id,
+    });
+
+    return transformBooking(updated);
+  }
+
+  async cancel(id: string, userId: string) {
+    const booking = await this.prisma.booking.findUnique({
+      where: { id }, include: { createdBy: true, room: true },
+    });
+    if (!booking) throw new NotFoundException('Booking not found');
+    if (booking.createdById !== userId) {
+      // Allow admins — checked in controller
+    }
+    if (booking.status === 'cancelled') throw new BadRequestException('Booking already cancelled');
+
+    const updated = await this.prisma.booking.update({
+      where: { id },
+      data: { status: 'cancelled' as any },
+      include: BOOKING_INCLUDE,
+    });
+
+    this.notifications.emitToUser(booking.createdById, {
+      type: 'cancelled',
+      title: 'Booking Cancelled',
+      body: `Your booking for ${booking.room.roomName} has been cancelled.`,
+      bookingId: id,
+    });
+
+    return transformBooking(updated);
   }
 }

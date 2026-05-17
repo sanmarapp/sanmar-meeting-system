@@ -36,7 +36,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                 toastOptions={{
                   classNames: {
                     toast:       'font-sans text-sm rounded-xl border border-neutral-200 shadow-md',
-                    title:       'font-semibold text-neutral-900',
+                    title:       'font-normal text-neutral-900',
                     description: 'text-neutral-500',
                   },
                 }}

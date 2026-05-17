@@ -120,7 +120,7 @@ function MonthCalendar({
         >
           <ChevronLeft size={16} strokeWidth={2} />
         </button>
-        <span className="text-sm font-semibold text-neutral-800">
+        <span className="text-sm font-normal text-neutral-800">
           {fmtMonthYear(viewYear, viewMonth)}
         </span>
         <button
@@ -135,7 +135,7 @@ function MonthCalendar({
       {/* Day headers */}
       <div className="grid grid-cols-7 mb-1">
         {DAYS.map(d => (
-          <div key={d} className="text-center text-xs font-medium text-neutral-400 py-1">
+          <div key={d} className="text-center text-xs font-normal text-neutral-400 py-1">
             {d}
           </div>
         ))}
@@ -158,8 +158,8 @@ function MonthCalendar({
               className={[
                 'relative mx-auto flex items-center justify-center w-8 h-8 rounded-full text-sm transition-all duration-100',
                 past    ? 'text-neutral-300 cursor-not-allowed'      : 'cursor-pointer',
-                active  ? 'text-white font-semibold'                 : '',
-                !active && !past && todayDay ? 'font-semibold'       : '',
+                active  ? 'text-white font-normal'                  : '',
+                !active && !past && todayDay ? 'font-normal'         : '',
                 !active && !past ? 'hover:bg-neutral-100 text-neutral-800' : '',
               ].join(' ')}
               style={active ? { background: '#826B52' } : undefined}
@@ -206,7 +206,7 @@ function AvailabilityPanel({
     <div>
       <div className="flex items-center gap-2 mb-3">
         <CalendarDays size={14} strokeWidth={1.75} className="text-neutral-400" />
-        <span className="text-sm font-semibold text-neutral-800">{fmtSelectedDate}</span>
+        <span className="text-sm font-normal text-neutral-800">{fmtSelectedDate}</span>
       </div>
 
       {isLoading ? (
@@ -313,7 +313,7 @@ export function RoomDetailPage() {
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="text-center space-y-3">
             <Building2 size={40} className="mx-auto text-neutral-300" />
-            <p className="text-neutral-500 font-medium">Room not found</p>
+            <p className="text-neutral-500 font-normal">Room not found</p>
             <Button variant="outline" size="sm" onClick={() => navigate('/rooms')}>
               Back to Rooms
             </Button>
@@ -390,7 +390,7 @@ export function RoomDetailPage() {
             {/* Amenities */}
             {room.amenities && room.amenities.length > 0 && (
               <div className="mt-4 pt-4 border-t border-neutral-100">
-                <p className="text-xs font-medium text-neutral-400 uppercase tracking-wide mb-2.5">
+                <p className="text-xs font-normal text-neutral-400 uppercase tracking-wide mb-2.5">
                   Amenities
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -454,7 +454,7 @@ export function RoomDetailPage() {
           style={{ background: 'rgba(130,107,82,0.05)', borderColor: 'rgba(130,107,82,0.2)' }}
         >
           <div>
-            <p className="font-semibold text-neutral-900 text-sm">Ready to book {room.name}?</p>
+            <p className="font-normal text-neutral-900 text-sm">Ready to book {room.name}?</p>
             <p className="text-xs text-neutral-500 mt-0.5">
               Your booking will be sent for approval once submitted.
             </p>

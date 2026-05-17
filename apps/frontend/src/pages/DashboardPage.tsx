@@ -119,7 +119,7 @@ export function DashboardPage() {
               action={
                 <button
                   onClick={() => navigate('/bookings')}
-                  className="text-xs text-primary-500 hover:text-primary-600 font-medium transition-colors"
+                  className="text-xs text-primary-500 hover:text-primary-600 font-normal transition-colors"
                 >
                   View all →
                 </button>
@@ -145,7 +145,7 @@ export function DashboardPage() {
                   >
                     <div className="w-1.5 h-1.5 rounded-full bg-primary-400 shrink-0" aria-hidden />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-neutral-900 truncate">{b.title}</p>
+                      <p className="text-sm font-normal text-neutral-900 truncate">{b.title}</p>
                       <p className="text-xs text-neutral-500">
                         {b.room.name} · {formatTime(b.startTime)}–{formatTime(b.endTime)}
                       </p>
@@ -167,7 +167,7 @@ export function DashboardPage() {
               action={
                 <button
                   onClick={() => navigate('/site-visits')}
-                  className="text-xs text-primary-500 hover:text-primary-600 font-medium transition-colors"
+                  className="text-xs text-primary-500 hover:text-primary-600 font-normal transition-colors"
                 >
                   View all →
                 </button>
@@ -193,7 +193,7 @@ export function DashboardPage() {
                   >
                     <div className="w-1.5 h-1.5 rounded-full bg-info-DEFAULT shrink-0" aria-hidden />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-neutral-900 truncate">{v.client.name}</p>
+                      <p className="text-sm font-normal text-neutral-900 truncate">{v.client.name}</p>
                       <p className="text-xs text-neutral-500">
                         {v.site.name} · {formatDate(v.visitDate)}
                       </p>
@@ -214,7 +214,7 @@ export function DashboardPage() {
             <div className="flex items-center gap-3">
               <CalendarDays size={18} strokeWidth={1.75} className="text-warning shrink-0" />
               <div>
-                <p className="text-sm font-semibold text-neutral-800">
+                <p className="text-sm font-normal text-neutral-800">
                   {pendingCount} booking{pendingCount > 1 ? 's' : ''} awaiting your approval
                 </p>
                 <p className="text-xs text-neutral-500">Review and confirm or reject pending requests.</p>

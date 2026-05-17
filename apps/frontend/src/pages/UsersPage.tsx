@@ -104,7 +104,7 @@ export function UsersPage() {
                 <button
                   key={value}
                   onClick={() => setRoleFilter(value)}
-                  className="text-sm px-3 py-1.5 rounded-lg font-medium transition-all duration-100 select-none"
+                  className="text-sm px-3 py-1.5 rounded-lg font-normal transition-all duration-100 select-none"
                   style={{
                     background: active ? 'rgba(130,107,82,0.1)' : 'transparent',
                     color: active ? '#826B52' : 'rgba(0,0,0,0.5)',
@@ -141,11 +141,11 @@ export function UsersPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ borderBottom: '1px solid #F0EDE9' }}>
-                  <th className="px-5 py-3 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">User</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Role</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Department</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Last Login</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Status</th>
+                  <th className="px-5 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">User</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">Role</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">Department</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">Last Login</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -175,13 +175,13 @@ export function UsersPage() {
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
                           <div
-                            className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold shrink-0"
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-normal shrink-0"
                             style={{ background: u.id === me?.id ? 'rgba(130,107,82,0.15)' : 'rgba(0,0,0,0.06)', color: u.id === me?.id ? '#826B52' : '#6B7280' }}
                           >
                             {initials(u.name)}
                           </div>
                           <div>
-                            <p className="font-medium text-neutral-900">
+                            <p className="font-normal text-neutral-900">
                               {u.name}
                               {u.id === me?.id && <span className="ml-1.5 text-xs text-neutral-400">(you)</span>}
                             </p>

@@ -88,7 +88,7 @@ export function Header({ title, subtitle, action, backHref, className }: HeaderP
       {/* Right — location + bell + CTA */}
       <div className="flex items-center gap-2 shrink-0">
         {/* Location pill — hidden on very small screens */}
-        <div className="hidden sm:flex items-center gap-1.5 bg-neutral-100 border border-neutral-200 rounded-lg px-2.5 py-1.5 text-xs font-medium text-neutral-600">
+        <div className="hidden sm:flex items-center gap-1.5 bg-neutral-100 border border-neutral-200 rounded-lg px-2.5 py-1.5 text-xs font-normal text-neutral-600">
           <MapPin size={11} strokeWidth={2} className="text-neutral-400" />
           {location}
         </div>
@@ -102,7 +102,7 @@ export function Header({ title, subtitle, action, backHref, className }: HeaderP
           >
             <Bell size={14} strokeWidth={1.75} />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 min-w-[14px] h-[14px] rounded-full bg-danger text-white text-[9px] font-bold flex items-center justify-center px-0.5 leading-none border border-white">
+              <span className="absolute top-1 right-1 min-w-[14px] h-[14px] rounded-full bg-danger text-white text-[9px] font-normal flex items-center justify-center px-0.5 leading-none border border-white">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -112,9 +112,9 @@ export function Header({ title, subtitle, action, backHref, className }: HeaderP
           {bellOpen && (
             <div className="absolute right-0 top-[calc(100%+6px)] w-[320px] bg-white border border-neutral-200 rounded-xl shadow-lg z-50 overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
-                <p className="text-sm font-semibold text-neutral-800">Notifications</p>
+                <p className="text-sm font-normal text-neutral-800">Notifications</p>
                 {notifications.length > 0 && (
-                  <button onClick={markAllRead} className="text-xs text-primary-500 hover:text-primary-700 font-medium transition-colors">
+                  <button onClick={markAllRead} className="text-xs text-primary-500 hover:text-primary-700 font-normal transition-colors">
                     Mark all read
                   </button>
                 )}
@@ -174,7 +174,7 @@ function NotificationItem({ notification: n }: { notification: { id: string; typ
         {iconMap[n.type] ?? <Bell size={14} strokeWidth={1.75} className="text-neutral-400" />}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-neutral-800 leading-snug">{n.title}</p>
+        <p className="text-sm font-normal text-neutral-800 leading-snug">{n.title}</p>
         <p className="text-xs text-neutral-500 mt-0.5 leading-relaxed">{n.body}</p>
         <p className="text-[10px] text-neutral-300 mt-1">{timeAgo}</p>
       </div>

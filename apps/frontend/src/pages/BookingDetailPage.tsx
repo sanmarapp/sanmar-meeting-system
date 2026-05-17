@@ -235,7 +235,7 @@ export function BookingDetailPage() {
                 <>
                   <CardDivider />
                   <div>
-                    <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide mb-2">Description</p>
+                    <p className="text-xs font-normal text-neutral-400 uppercase tracking-wide mb-2">Description</p>
                     <p className="text-sm text-neutral-700 leading-relaxed whitespace-pre-wrap">{booking.description}</p>
                   </div>
                 </>
@@ -283,13 +283,13 @@ export function BookingDetailPage() {
                 />
                 <div className="flex items-center gap-3">
                   <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold shrink-0"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-normal shrink-0"
                     style={{ background: booking.status === 'APPROVED' ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)', color: booking.status === 'APPROVED' ? '#16a34a' : '#dc2626' }}
                   >
                     {booking.approver.name.split(' ').map(w => w[0]).slice(0, 2).join('')}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-neutral-800">{booking.approver.name}</p>
+                    <p className="text-sm font-normal text-neutral-800">{booking.approver.name}</p>
                     <p className="text-xs text-neutral-400">
                       {booking.status === 'APPROVED' ? 'Approved' : 'Rejected'} this booking
                     </p>
@@ -311,7 +311,7 @@ export function BookingDetailPage() {
             {/* Status card */}
             <Card>
               <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-semibold text-neutral-700">Status</p>
+                <p className="text-sm font-normal text-neutral-700">Status</p>
                 <Badge variant={bookingStatusVariant(booking.status)}>
                   {bookingStatusLabel(booking.status)}
                 </Badge>
@@ -358,7 +358,7 @@ export function BookingDetailPage() {
                   {showRejectForm && (
                     <div className="space-y-2.5">
                       <div className="flex flex-col gap-1">
-                        <label className="text-xs font-medium text-neutral-600">Reason for rejection</label>
+                        <label className="text-xs font-normal text-neutral-600">Reason for rejection</label>
                         <textarea
                           value={rejectReason}
                           onChange={e => setRejectReason(e.target.value)}
@@ -467,7 +467,7 @@ function DetailRow({
       <span className="text-neutral-300 shrink-0 mt-0.5">{icon}</span>
       <div>
         <p className="text-xs text-neutral-400 mb-0.5">{label}</p>
-        <p className="text-sm font-medium text-neutral-800">{value}</p>
+        <p className="text-sm font-normal text-neutral-800">{value}</p>
       </div>
     </div>
   );
@@ -478,7 +478,7 @@ function MetaRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-2">
       <dt className="text-xs text-neutral-400">{label}</dt>
-      <dd className="text-xs font-medium text-neutral-600 text-right">{value}</dd>
+      <dd className="text-xs font-normal text-neutral-600 text-right">{value}</dd>
     </div>
   );
 }
@@ -498,7 +498,7 @@ function StatusTimeline({ status }: { status: string }) {
     return (
       <div className="flex items-center gap-2 py-1">
         <div className="w-2 h-2 rounded-full bg-danger shrink-0" />
-        <span className="text-xs text-danger font-medium">
+        <span className="text-xs text-danger font-normal">
           {isRejected ? 'Booking rejected' : 'Booking cancelled'}
         </span>
       </div>
@@ -528,7 +528,7 @@ function StatusTimeline({ status }: { status: string }) {
               )}
               {current && <div className="w-1.5 h-1.5 rounded-full bg-primary-500" />}
             </div>
-            <span className={`text-xs font-medium ${done ? 'text-neutral-700' : 'text-neutral-300'}`}>
+            <span className={`text-xs font-normal ${done ? 'text-neutral-700' : 'text-neutral-300'}`}>
               {step.label}
             </span>
           </div>

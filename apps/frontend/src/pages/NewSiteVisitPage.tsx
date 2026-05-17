@@ -117,7 +117,7 @@ export function NewSiteVisitPage() {
 
                   {/* Client picker */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-neutral-700">
+                    <label className="text-sm font-normal text-neutral-700">
                       Client <span className="text-danger ml-0.5">*</span>
                     </label>
                     <div className="relative">
@@ -144,7 +144,7 @@ export function NewSiteVisitPage() {
 
                   {/* Site picker */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-neutral-700">
+                    <label className="text-sm font-normal text-neutral-700">
                       Site / Property <span className="text-danger ml-0.5">*</span>
                     </label>
                     <div className="relative">
@@ -190,7 +190,7 @@ export function NewSiteVisitPage() {
                   />
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-neutral-700">
+                    <label className="text-sm font-normal text-neutral-700">
                       Visit Time <span className="text-danger ml-0.5">*</span>
                     </label>
                     <div className="relative">
@@ -266,7 +266,7 @@ function SummaryRow({ icon, label, value }: { icon: React.ReactNode; label: stri
       <span className="text-neutral-300 shrink-0 mt-0.5">{icon}</span>
       <div className="flex-1 min-w-0">
         <dt className="text-xs text-neutral-400 mb-0.5">{label}</dt>
-        <dd className="text-sm font-medium text-neutral-800">{value}</dd>
+        <dd className="text-sm font-normal text-neutral-800">{value}</dd>
       </div>
     </div>
   );
