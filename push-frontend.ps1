@@ -16,16 +16,25 @@ git add -A
 
 Write-Host "Committing..." -ForegroundColor Cyan
 $msg = @"
-feat(frontend): BookingsPage with filters and status badges
+feat(frontend): NewBookingPage and BookingDetailPage
 
-- Full /bookings page: table layout, status tabs, search, date filter
-- Status tabs: All / Pending / Approved / Rejected / Cancelled / Completed
-- Table: Meeting, Room, Date and Time, Attendees, Status, chevron
-- Admin/Manager: extra Requested By and Department column
-- Skeleton loading, empty state, filter-aware empty state messaging
-- Pagination: 15 per page, prev/next controls, page indicator
-- isFetching dimming on filter change for perceived speed
-- Wired into App.tsx replacing ComingSoon placeholder
+NewBookingPage (/bookings/new):
+- Two-column layout: form sections left, live summary card right
+- Sections: Meeting Details, Room and Schedule, Attendees and Setup
+- Room picker loads from API with capacity and location info
+- Date, start/end time inputs with live duration feedback
+- Refreshments checkbox, room arrangement selector, notes textarea
+- Client-side validation with inline error messages
+- useMutation submit with toast success/error, redirect to detail
+
+BookingDetailPage (/bookings/:id):
+- Full meeting detail grid: room, date, time, duration, attendees
+- Status timeline: Submitted / Approved / Completed (or Rejected / Cancelled)
+- Admin/Manager actions: Approve button, Reject with optional reason form
+- Owner actions: Cancel with inline confirmation step
+- Approver record card shown after approval or rejection
+- Skeleton loading state, not-found fallback
+- React Query cache invalidation after each mutation
 "@
 git commit -m $msg
 

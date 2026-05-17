@@ -3,7 +3,9 @@ import { useAuth } from './contexts/AuthContext';
 import { PageLoader } from './components/ui/Spinner';
 import { LoginPage }     from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
-import { BookingsPage }  from './pages/BookingsPage';
+import { BookingsPage }       from './pages/BookingsPage';
+import { NewBookingPage }     from './pages/NewBookingPage';
+import { BookingDetailPage }  from './pages/BookingDetailPage';
 
 // ─── Route guard ───────────────────────────────────────────────
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -41,11 +43,11 @@ function App() {
       />
       <Route
         path="/bookings/new"
-        element={<PrivateRoute><ComingSoon title="New Booking" /></PrivateRoute>}
+        element={<PrivateRoute><NewBookingPage /></PrivateRoute>}
       />
       <Route
         path="/bookings/:id"
-        element={<PrivateRoute><ComingSoon title="Booking Detail" /></PrivateRoute>}
+        element={<PrivateRoute><BookingDetailPage /></PrivateRoute>}
       />
       <Route
         path="/rooms"
