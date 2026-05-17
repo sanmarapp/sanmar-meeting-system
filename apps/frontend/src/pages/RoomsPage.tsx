@@ -175,6 +175,7 @@ export function RoomsPage() {
               <RoomCard
                 key={room.id}
                 room={room}
+                onView={() => navigate(`/rooms/${room.id}`)}
                 onBook={() => navigate(`/bookings/new?roomId=${room.id}`)}
               />
             ))}
@@ -186,7 +187,7 @@ export function RoomsPage() {
 }
 
 // ─── Room card ─────────────────────────────────────────────────
-function RoomCard({ room, onBook }: { room: Room; onBook: () => void }) {
+function RoomCard({ room, onBook, onView }: { room: Room; onBook: () => void; onView: () => void }) {
   return (
     <div
       className="bg-white border border-neutral-200 rounded-xl shadow-xs overflow-hidden flex flex-col transition-shadow duration-150 hover:shadow-sm"
@@ -243,10 +244,15 @@ function RoomCard({ room, onBook }: { room: Room; onBook: () => void }) {
           <div className="flex-1" />
         )}
 
-        {/* Book CTA */}
-        <Button variant="outline" size="sm" fullWidth onClick={onBook}>
-          Book this Room
-        </Button>
+        {/* Actions */}
+        <div className="flex gap-2">
+          <Button variant="ghost" size="sm" onClick={onView} className="flex-1">
+            View Details
+          </Button>
+          <Button variant="outline" size="sm" onClick={onBook} className="flex-1">
+            Book
+          </Button>
+        </div>
       </div>
     </div>
   );

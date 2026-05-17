@@ -1,55 +1,55 @@
 Set-Location "D:\AIWorkspace\projects\sanmar-meeting-system\sanmar-meeting-system"
 
-# Optional: run convert-logos.ps1 first if real PNG logos are needed
-# .\convert-logos.ps1
-
-Write-Host "Installing new frontend packages..." -ForegroundColor Cyan
+Write-Host "Installing packages..." -ForegroundColor Cyan
 npm install -w apps/frontend
+npm install -w apps/backend
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "npm install failed. Check output above." -ForegroundColor Red
     exit 1
 }
 
-Write-Host "Staging all frontend changes..." -ForegroundColor Cyan
+Write-Host "Staging all changes..." -ForegroundColor Cyan
 git add -A
 
 Write-Host "Committing..." -ForegroundColor Cyan
 $msg = @"
-feat(frontend): all remaining pages — rooms, site visits, approvals, users, settings
+feat: site-visit detail, mobile sidebar, WebSocket notifications, room detail
 
-RoomsPage (/rooms):
-- Card grid (3-col) with type color strip, capacity, amenities, location
-- Type filter tabs plus search bar, client-side filtering
-- Amenity icons mapped from keywords, Book CTA on each card
+/site-visits/:id (SiteVisitDetailPage):
+- Client info with mailto / tel links, site address, date/time, booked by
+- Status badge, site-ready badge, 2-step cancel confirmation (owner/admin only)
+- Status timeline: Scheduled -> Completed or Cancelled/No Show branch
+- Loading skeleton and not-found fallback
 
-SiteVisitsPage (/site-visits):
-- Table with status tabs: All / Scheduled / Completed / Cancelled / No Show
-- Columns: Client, Site, Date and Time, Booked By, Status, chevron
-- Search and date filters with clear button
+Mobile sidebar / responsive drawer (SidebarContext + AppShell + Sidebar):
+- SidebarContext with open/close/toggle + body scroll lock
+- Sidebar slides in via CSS translate, lg:translate-x-0 always visible on desktop
+- Hamburger button in Header (mobile only), overlay backdrop on open
+- Auto-close on route change via useLocation
 
-NewSiteVisitPage (/site-visits/new):
-- Client picker and site picker loaded from API
-- Date and time inputs with live summary card
-- Notes textarea, validation, useMutation with toast and redirect
+Real-time notifications (WebSocket):
+- Backend: NotificationsGateway (socket.io, /notifications namespace)
+  JWT auth in handleConnection, emitToUser + emitToRole helpers, ping/pong
+- Backend: NotificationsModule exported, wired into AppModule
+- Backend: IoAdapter registered in main.ts
+- Backend deps: @nestjs/websockets, @nestjs/platform-socket.io, socket.io
+- Frontend: NotificationContext with socket.io-client
+  Reconnecting socket, notification + notification:role events, Sonner toasts
+  Max 50 notifications, markAllRead, clearAll
+- Frontend: NotificationProvider added to main.tsx inside AuthProvider
+- Header: bell icon with unread count badge, dropdown with type icons + timeAgo
+  Outside-click close, mark-all-read button
 
-ApprovalsPage (/approvals):
-- Pending bookings list with inline Approve and Reject buttons
-- Admin/Manager only (access-restricted for other roles)
-- Warning banner showing count, React Query cache invalidation
+/rooms/:id (RoomDetailPage):
+- Hero card with type accent strip, capacity, location, floor, amenities
+- Custom month-grid calendar (no external lib) with past-date guard
+- Availability slots panel: checkAvailability API, Book button per slot
+- Quick-book CTA bar linking to /bookings/new with pre-filled roomId and date
+- RoomsPage: View Details + Book split CTAs on each card
 
-UsersPage (/users):
-- Table with avatar initials, role badge with icon, department, last login
-- Role filter tabs plus search, Admin only access guard
-- You badge on current user row
-
-SettingsPage (/settings):
-- Profile card: read-only name, email, role, department, employee ID
-- Notifications: read-only toggles for email and WhatsApp
-- Change password: current and new password with show/hide, validation
-- Session card with last login time and Sign Out button
-
-New services: userService, clientService, siteService
+Header: added backHref prop (ArrowLeft button, hides hamburger on detail pages)
+App.tsx: added /rooms/:id and /site-visits/:id routes
 "@
 git commit -m $msg
 
@@ -57,8 +57,9 @@ Write-Host "Pushing to GitHub..." -ForegroundColor Cyan
 git push origin main
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "Push successful!" -ForegroundColor Green
-    Write-Host "Railway will auto-deploy. Frontend runs on: npm run dev -w apps/frontend" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Push successful! Railway will auto-deploy." -ForegroundColor Green
+    Write-Host "Frontend dev: npm run dev -w apps/frontend" -ForegroundColor Cyan
 } else {
     Write-Host "Push failed. Check output above." -ForegroundColor Red
 }

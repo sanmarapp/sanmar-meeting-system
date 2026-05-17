@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { SiteVisitsModule } from './site-visits/site-visits.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { SiteVisitsModule } from './site-visits/site-visits.module';
     BookingsModule,
     RoomsModule,
     SiteVisitsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

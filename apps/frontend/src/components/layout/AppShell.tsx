@@ -1,23 +1,39 @@
 import { type ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
+import { SidebarProvider, useSidebar } from '../../contexts/SidebarContext';
 
-interface AppShellProps {
-  children: ReactNode;
-}
+// ─── Inner shell (needs sidebar context) ───────────────────────
+function Shell({ children }: { children: ReactNode }) {
+  const { isOpen, close } = useSidebar();
 
-/**
- * AppShell — the fixed chrome that wraps every authenticated page.
- * Sidebar (228px fixed left) + scrollable main content area.
- */
-export function AppShell({ children }: AppShellProps) {
   return (
     <div className="flex min-h-screen bg-neutral-100">
+
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-[1px] lg:hidden"
+          onClick={close}
+          aria-hidden
+        />
+      )}
+
       <Sidebar />
-      {/* Offset content by sidebar width */}
-      <main className="flex-1 ml-[228px] flex flex-col min-h-screen overflow-x-hidden">
+
+      {/* Content — offset on desktop, full-width on mobile */}
+      <main className="flex-1 lg:ml-[228px] flex flex-col min-h-screen overflow-x-hidden">
         {children}
       </main>
     </div>
+  );
+}
+
+// ─── AppShell — wraps Shell with SidebarProvider ───────────────
+export function AppShell({ children }: { children: ReactNode }) {
+  return (
+    <SidebarProvider>
+      <Shell>{children}</Shell>
+    </SidebarProvider>
   );
 }
 

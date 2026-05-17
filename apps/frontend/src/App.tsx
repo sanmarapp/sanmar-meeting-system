@@ -7,7 +7,9 @@ import { BookingsPage }       from './pages/BookingsPage';
 import { NewBookingPage }     from './pages/NewBookingPage';
 import { BookingDetailPage }  from './pages/BookingDetailPage';
 import { RoomsPage }          from './pages/RoomsPage';
+import { RoomDetailPage }     from './pages/RoomDetailPage';
 import { SiteVisitsPage }     from './pages/SiteVisitsPage';
+import { SiteVisitDetailPage } from './pages/SiteVisitDetailPage';
 import { NewSiteVisitPage }   from './pages/NewSiteVisitPage';
 import { ApprovalsPage }      from './pages/ApprovalsPage';
 import { UsersPage }          from './pages/UsersPage';
@@ -55,9 +57,11 @@ function App() {
         path="/bookings/:id"
         element={<PrivateRoute><BookingDetailPage /></PrivateRoute>}
       />
-      <Route path="/rooms"           element={<PrivateRoute><RoomsPage /></PrivateRoute>} />
-      <Route path="/site-visits"     element={<PrivateRoute><SiteVisitsPage /></PrivateRoute>} />
-      <Route path="/site-visits/new" element={<PrivateRoute><NewSiteVisitPage /></PrivateRoute>} />
+      <Route path="/rooms"              element={<PrivateRoute><RoomsPage /></PrivateRoute>} />
+      <Route path="/rooms/:id"          element={<PrivateRoute><RoomDetailPage /></PrivateRoute>} />
+      <Route path="/site-visits"        element={<PrivateRoute><SiteVisitsPage /></PrivateRoute>} />
+      <Route path="/site-visits/new"    element={<PrivateRoute><NewSiteVisitPage /></PrivateRoute>} />
+      <Route path="/site-visits/:id"    element={<PrivateRoute><SiteVisitDetailPage /></PrivateRoute>} />
       <Route path="/users"           element={<PrivateRoute><UsersPage /></PrivateRoute>} />
       <Route path="/approvals"       element={<PrivateRoute><ApprovalsPage /></PrivateRoute>} />
       <Route path="/settings"        element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
