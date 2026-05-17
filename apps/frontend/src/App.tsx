@@ -1,8 +1,9 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import { PageLoader } from './components/ui/Spinner';
-import { LoginPage }    from './pages/LoginPage';
+import { LoginPage }     from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { BookingsPage }  from './pages/BookingsPage';
 
 // ─── Route guard ───────────────────────────────────────────────
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -33,10 +34,10 @@ function App() {
         element={<PrivateRoute><DashboardPage /></PrivateRoute>}
       />
 
-      {/* Placeholder routes — pages to be built next */}
+      {/* Built pages */}
       <Route
         path="/bookings"
-        element={<PrivateRoute><ComingSoon title="Bookings" /></PrivateRoute>}
+        element={<PrivateRoute><BookingsPage /></PrivateRoute>}
       />
       <Route
         path="/bookings/new"

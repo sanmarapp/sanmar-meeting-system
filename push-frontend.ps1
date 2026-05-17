@@ -15,13 +15,19 @@ Write-Host "Staging all frontend changes..." -ForegroundColor Cyan
 git add -A
 
 Write-Host "Committing..." -ForegroundColor Cyan
-git commit -m "feat(frontend): dark sidebar + golden brand system
+$msg = @"
+feat(frontend): BookingsPage with filters and status badges
 
-- Sidebar: dark variant (#1A1614 bg) with golden active states (#C9A97A)
-- Logo: updated to golden fill for dark sidebar visibility
-- Nav: inline-style hover states (Tailwind-safe arbitrary hex)
-- User footer: avatar initials, role label, logout with reveal-on-hover
-- Admin section: conditional Manage group for ADMIN/MANAGER roles"
+- Full /bookings page: table layout, status tabs, search, date filter
+- Status tabs: All / Pending / Approved / Rejected / Cancelled / Completed
+- Table: Meeting, Room, Date and Time, Attendees, Status, chevron
+- Admin/Manager: extra Requested By and Department column
+- Skeleton loading, empty state, filter-aware empty state messaging
+- Pagination: 15 per page, prev/next controls, page indicator
+- isFetching dimming on filter change for perceived speed
+- Wired into App.tsx replacing ComingSoon placeholder
+"@
+git commit -m $msg
 
 Write-Host "Pushing to GitHub..." -ForegroundColor Cyan
 git push origin main
