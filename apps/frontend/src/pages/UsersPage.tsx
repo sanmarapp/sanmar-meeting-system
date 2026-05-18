@@ -15,25 +15,40 @@ import { useAuth } from '../contexts/AuthContext';
 type RoleFilter = AuthUser['role'] | 'ALL';
 
 const ROLE_TABS: { label: string; value: RoleFilter }[] = [
-  { label: 'All',     value: 'ALL' },
-  { label: 'Admin',   value: 'ADMIN' },
-  { label: 'Manager', value: 'MANAGER' },
-  { label: 'Staff',   value: 'STAFF' },
-  { label: 'Viewer',  value: 'VIEWER' },
+  { label: 'All',             value: 'ALL' },
+  { label: 'Admin',           value: 'ADMIN' },
+  { label: 'Corporate Admin', value: 'CORPORATE_ADMIN' },
+  { label: 'HoD',             value: 'DEPT_MANAGER' },
+  { label: 'Employee',        value: 'EMPLOYEE' },
+  { label: 'Receptionist',    value: 'RECEPTIONIST' },
+  { label: 'Site Admin',      value: 'SITE_ADMIN' },
 ];
 
 const ROLE_BADGE: Record<string, 'brand' | 'info' | 'success' | 'neutral' | 'warning'> = {
-  ADMIN:   'brand',
-  MANAGER: 'info',
-  STAFF:   'success',
-  VIEWER:  'neutral',
+  ADMIN:           'brand',
+  CORPORATE_ADMIN: 'brand',
+  DEPT_MANAGER:    'info',
+  EMPLOYEE:        'success',
+  RECEPTIONIST:    'neutral',
+  SITE_ADMIN:      'warning',
+};
+
+const ROLE_LABEL: Record<string, string> = {
+  ADMIN:           'Admin',
+  CORPORATE_ADMIN: 'Corporate Admin',
+  DEPT_MANAGER:    'Head of Dept',
+  EMPLOYEE:        'Employee',
+  RECEPTIONIST:    'Receptionist',
+  SITE_ADMIN:      'Site Admin',
 };
 
 const ROLE_ICON: Record<string, React.ReactNode> = {
-  ADMIN:   <ShieldCheck size={12} strokeWidth={1.75} />,
-  MANAGER: <Shield size={12} strokeWidth={1.75} />,
-  STAFF:   <UserIcon size={12} strokeWidth={1.75} />,
-  VIEWER:  <Eye size={12} strokeWidth={1.75} />,
+  ADMIN:           <ShieldCheck size={12} strokeWidth={1.75} />,
+  CORPORATE_ADMIN: <ShieldCheck size={12} strokeWidth={1.75} />,
+  DEPT_MANAGER:    <Shield size={12} strokeWidth={1.75} />,
+  EMPLOYEE:        <UserIcon size={12} strokeWidth={1.75} />,
+  RECEPTIONIST:    <UserIcon size={12} strokeWidth={1.75} />,
+  SITE_ADMIN:      <Eye size={12} strokeWidth={1.75} />,
 };
 
 function initials(name: string) {

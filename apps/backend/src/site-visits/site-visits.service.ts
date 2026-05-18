@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
+import { AuditService } from '../audit/audit.service';
 import { CreateSiteVisitDto } from './dto/create-site-visit.dto';
 
 function mapVisitStatus(s: string): string {
@@ -42,6 +43,7 @@ export class SiteVisitsService {
   constructor(
     private prisma: PrismaService,
     private notifications: NotificationsGateway,
+    private audit: AuditService,
   ) {}
 
   async findAll(query: { status?: string; search?: string; date?: string; limit?: number }) {
@@ -106,6 +108,15 @@ export class SiteVisitsService {
       include: VISIT_INCLUDE,
     });
 
+    // Audit: visit created
+    await this.audit.log({
+      userId,
+      action: 'SITE_VISIT_CREATED',
+      entity: 'SiteVisit',
+      entityId: visit.id,
+      changes: { clientId: dto.clientId, siteId: dto.siteId, visitDate: dto.visitDate },
+    });
+
     // Notify site admin
     if (site.siteAdminId) {
       this.notifications.emitToUser(site.siteAdminId, {
@@ -130,6 +141,15 @@ export class SiteVisitsService {
       where: { id },
       data: { status: 'CANCELLED' as any },
       include: VISIT_INCLUDE,
+    });
+
+    // Audit: visit cancelled
+    await this.audit.log({
+      userId,
+      action: 'SITE_VISIT_CANCELLED',
+      entity: 'SiteVisit',
+      entityId: id,
+      changes: { previousStatus: visit.status },
     });
 
     // Notify site admin

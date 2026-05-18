@@ -14,11 +14,22 @@ import { Card, CardHeader, CardDivider } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { useAuth } from '../contexts/AuthContext';
 
-const ROLE_BADGE: Record<string, 'brand' | 'info' | 'success' | 'neutral'> = {
-  ADMIN:   'brand',
-  MANAGER: 'info',
-  STAFF:   'success',
-  VIEWER:  'neutral',
+const ROLE_BADGE: Record<string, 'brand' | 'info' | 'success' | 'neutral' | 'warning'> = {
+  ADMIN:           'brand',
+  CORPORATE_ADMIN: 'brand',
+  DEPT_MANAGER:    'info',
+  EMPLOYEE:        'success',
+  RECEPTIONIST:    'neutral',
+  SITE_ADMIN:      'warning',
+};
+
+const ROLE_LABEL: Record<string, string> = {
+  ADMIN:           'Admin',
+  CORPORATE_ADMIN: 'Corporate Admin',
+  DEPT_MANAGER:    'Head of Dept',
+  EMPLOYEE:        'Employee',
+  RECEPTIONIST:    'Receptionist',
+  SITE_ADMIN:      'Site Admin',
 };
 
 // ─── Component ─────────────────────────────────────────────────

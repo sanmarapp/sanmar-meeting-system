@@ -62,7 +62,7 @@ export function SiteVisitDetailPage() {
     enabled:  !!id,
   });
 
-  const isAdmin  = user?.role === 'ADMIN' || user?.role === 'MANAGER';
+  const isAdmin  = user?.role === 'ADMIN' || user?.role === 'CORPORATE_ADMIN';
   const isOwner  = visit?.bookedBy?.id === user?.id;
   const canCancel = (isOwner || isAdmin) && visit?.status === 'SCHEDULED';
 

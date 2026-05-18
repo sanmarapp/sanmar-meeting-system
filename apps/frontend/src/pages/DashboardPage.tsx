@@ -209,7 +209,7 @@ export function DashboardPage() {
         </div>
 
         {/* ── Pending approvals banner (admin/manager only) ── */}
-        {pendingCount > 0 && (user?.role === 'ADMIN' || user?.role === 'MANAGER') && (
+        {pendingCount > 0 && (user?.role === 'ADMIN' || user?.role === 'CORPORATE_ADMIN') && (
           <div className="bg-warning-light border border-warning-border rounded-xl p-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <CalendarDays size={18} strokeWidth={1.75} className="text-warning shrink-0" />

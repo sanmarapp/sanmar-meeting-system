@@ -55,7 +55,7 @@ function AmenityIcon({ name }: { name: string }) {
 export function RoomsPage() {
   const navigate  = useNavigate();
   const { user }  = useAuth();
-  const isAdmin   = user?.role === 'ADMIN' || user?.role === 'MANAGER';
+  const isAdmin   = user?.role === 'ADMIN' || user?.role === 'CORPORATE_ADMIN';
 
   const [typeFilter, setTypeFilter] = useState<RoomType | 'ALL'>('ALL');
   const [search, setSearch]         = useState('');

@@ -1,8 +1,9 @@
 import {
-  Injectable, NotFoundException, BadRequestException, ForbiddenException,
+  Injectable, NotFoundException, BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
+import { AuditService } from '../audit/audit.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 
 // ─── Status mapping (schema → frontend) ─────────────────────────
@@ -52,6 +53,7 @@ export class BookingsService {
   constructor(
     private prisma: PrismaService,
     private notifications: NotificationsGateway,
+    private audit: AuditService,
   ) {}
 
   async findAll(query: {
@@ -65,7 +67,6 @@ export class BookingsService {
     const where: any = {};
 
     if (query.status) {
-      // Reverse-map frontend status → schema status
       const statusMap: Record<string, any> = {
         PENDING:   { status: 'pending_approval' },
         APPROVED:  { status: { in: ['confirmed', 'in_progress'] } },
@@ -133,9 +134,10 @@ export class BookingsService {
     const end   = new Date(dto.endTime);
     const durationMinutes = Math.round((end.getTime() - start.getTime()) / 60000);
 
-    const requiresApproval = room.isBoardRoom || room.roomType === 'board';
-    const status = requiresApproval ? 'pending_approval' : 'confirmed';
-    const approvalStatus = requiresApproval ? 'pending_hod' : 'not_required';
+    // All bookings in Corporate Office System require approval (P0-2)
+    const requiresApproval = true;
+    const status = 'pending_approval';
+    const approvalStatus = 'pending_hod';
 
     const booking = await this.prisma.booking.create({
       data: {
@@ -157,15 +159,37 @@ export class BookingsService {
       include: BOOKING_INCLUDE,
     });
 
-    // Notify admins/managers of new pending booking
-    if (requiresApproval) {
-      this.notifications.emitToRole('ADMIN', {
-        type: 'pending',
-        title: 'New Booking Awaiting Approval',
-        body: `${user.name} booked ${room.roomName} on ${start.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`,
-        bookingId: booking.id,
-      });
-    }
+    // Audit: booking created
+    await this.audit.log({
+      userId,
+      action: 'BOOKING_CREATED',
+      entity: 'Booking',
+      entityId: booking.id,
+      changes: { title: dto.title, roomId: dto.roomId, startTime: dto.startTime, endTime: dto.endTime },
+    });
+
+    const dateLabel = start.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+    // Notify approvers (ADMIN, CORPORATE_ADMIN) — action required
+    this.notifications.emitToRole('ADMIN', {
+      type: 'pending',
+      title: 'New Booking Awaiting Approval',
+      body: `${user.name} booked ${room.roomName} on ${dateLabel}`,
+      bookingId: booking.id,
+    });
+    this.notifications.emitToRole('CORPORATE_ADMIN', {
+      type: 'pending',
+      title: 'New Booking Awaiting Approval',
+      body: `${user.name} booked ${room.roomName} on ${dateLabel}`,
+      bookingId: booking.id,
+    });
+    // Notify DEPT_MANAGER — read-only awareness, no action required (P0-1)
+    this.notifications.emitToRole('DEPT_MANAGER', {
+      type: 'pending',
+      title: 'Room Booking Submitted',
+      body: `${user.name} submitted a booking for ${room.roomName} on ${dateLabel}`,
+      bookingId: booking.id,
+    });
 
     return transformBooking(booking);
   }
@@ -175,8 +199,9 @@ export class BookingsService {
       where: { id }, include: { createdBy: true, room: true },
     });
     if (!booking) throw new NotFoundException('Booking not found');
-    if (!['pending_approval', 'pending_hod', 'pending_admin'].includes(booking.status) &&
-        booking.approvalStatus !== 'pending_hod' && booking.approvalStatus !== 'pending_admin') {
+    if (booking.status !== 'pending_approval' &&
+        booking.approvalStatus !== 'pending_hod' &&
+        booking.approvalStatus !== 'pending_admin') {
       throw new BadRequestException('Booking is not awaiting approval');
     }
 
@@ -189,6 +214,15 @@ export class BookingsService {
         approvedAt: new Date(),
       },
       include: BOOKING_INCLUDE,
+    });
+
+    // Audit: booking approved
+    await this.audit.log({
+      userId: approverId,
+      action: 'BOOKING_APPROVED',
+      entity: 'Booking',
+      entityId: id,
+      changes: { previousStatus: booking.status, newStatus: 'confirmed' },
     });
 
     this.notifications.emitToUser(booking.createdById, {
@@ -218,6 +252,15 @@ export class BookingsService {
       include: BOOKING_INCLUDE,
     });
 
+    // Audit: booking rejected
+    await this.audit.log({
+      userId: approverId,
+      action: 'BOOKING_REJECTED',
+      entity: 'Booking',
+      entityId: id,
+      changes: { reason: reason ?? null },
+    });
+
     this.notifications.emitToUser(booking.createdById, {
       type: 'rejected',
       title: 'Booking Rejected',
@@ -235,15 +278,21 @@ export class BookingsService {
       where: { id }, include: { createdBy: true, room: true },
     });
     if (!booking) throw new NotFoundException('Booking not found');
-    if (booking.createdById !== userId) {
-      // Allow admins — checked in controller
-    }
     if (booking.status === 'cancelled') throw new BadRequestException('Booking already cancelled');
 
     const updated = await this.prisma.booking.update({
       where: { id },
       data: { status: 'cancelled' as any },
       include: BOOKING_INCLUDE,
+    });
+
+    // Audit: booking cancelled
+    await this.audit.log({
+      userId,
+      action: 'BOOKING_CANCELLED',
+      entity: 'Booking',
+      entityId: id,
+      changes: { previousStatus: booking.status },
     });
 
     this.notifications.emitToUser(booking.createdById, {

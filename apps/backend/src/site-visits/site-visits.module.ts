@@ -4,9 +4,10 @@ import { SiteVisitsController } from './site-visits.controller';
 import { ClientsController } from './clients.controller';
 import { SitesController } from './sites.controller';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
-  imports: [NotificationsModule],
+  imports: [NotificationsModule, AuditModule],
   controllers: [SiteVisitsController, ClientsController, SitesController],
   providers: [SiteVisitsService],
 })

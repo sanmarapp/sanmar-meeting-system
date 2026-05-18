@@ -63,7 +63,8 @@ export function BookingDetailPage() {
   });
 
   // ── Permissions ────────────────────────────────────────────
-  const isAdmin   = user?.role === 'ADMIN' || user?.role === 'MANAGER';
+  // Only ADMIN and CORPORATE_ADMIN may approve/reject bookings (DEPT_MANAGER is notification-only)
+  const isAdmin   = user?.role === 'ADMIN' || user?.role === 'CORPORATE_ADMIN';
   const isOwner   = booking?.createdBy?.id === user?.id;
   const canApprove = isAdmin && booking?.status === 'PENDING';
   const canCancel  = (isOwner || isAdmin) &&

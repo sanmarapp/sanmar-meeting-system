@@ -32,7 +32,8 @@ export function ApprovalsPage() {
   const navigate  = useNavigate();
   const { user }  = useAuth();
   const qc        = useQueryClient();
-  const isAdmin   = user?.role === 'ADMIN' || user?.role === 'MANAGER';
+  // Only ADMIN and CORPORATE_ADMIN may approve/reject bookings (DEPT_MANAGER is notification-only)
+  const isAdmin   = user?.role === 'ADMIN' || user?.role === 'CORPORATE_ADMIN';
 
   const { data, isLoading } = useQuery({
     queryKey: ['bookings', 'pending-approvals'],

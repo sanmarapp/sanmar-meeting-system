@@ -11,11 +11,20 @@ export interface ChangePasswordDto {
   newPassword:     string;
 }
 
+// Mirrors the UserRole enum in prisma/schema.prisma exactly
+export type UserRole =
+  | 'ADMIN'           // Master admin — full system access
+  | 'CORPORATE_ADMIN' // Corporate office admin — approves bookings
+  | 'DEPT_MANAGER'    // Head of Department — notification-only, no approval authority
+  | 'EMPLOYEE'        // Regular staff — books rooms, views own history
+  | 'RECEPTIONIST'    // Front desk — operational scheduling support
+  | 'SITE_ADMIN';     // Project site manager — manages site visits
+
 export interface AuthUser {
   id:                 string;
   email:              string;
   name:               string;
-  role:               'ADMIN' | 'MANAGER' | 'STAFF' | 'VIEWER';
+  role:               UserRole;
   employeeId:         string;
   designation:        string;
   departmentId:       string;

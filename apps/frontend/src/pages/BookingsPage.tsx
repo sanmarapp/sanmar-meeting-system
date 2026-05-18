@@ -60,7 +60,7 @@ export function BookingsPage() {
   const [date, setDate]     = useState('');
   const [page, setPage]     = useState(1);
 
-  const isAdmin = user?.role === 'ADMIN' || user?.role === 'MANAGER';
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'CORPORATE_ADMIN';
 
   const resetPage = useCallback(() => setPage(1), []);
 

@@ -29,7 +29,7 @@ export function Sidebar() {
   const location          = useLocation();
   const { isOpen, close } = useSidebar();
 
-  const isAdmin = user?.role === 'ADMIN' || user?.role === 'MANAGER';
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'CORPORATE_ADMIN';
 
   // Auto-close drawer on navigation (mobile)
   useEffect(() => { close(); }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
