@@ -129,7 +129,7 @@ export class WhatsAppService {
   async sendSiteVisitTeamAlert(params: {
     phone: string; name: string; clientName: string; clientType: string;
     siteName: string; visitDate: string; visitTime: string;
-    bookedByName: string; partySize?: number;
+    bookedByName: string; partySize?: number; assistanceContact?: string;
   }) {
     const typeLabel: Record<string, string> = {
       NEW_CLIENT:      '🆕 New Client',
