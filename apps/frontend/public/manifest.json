@@ -4,8 +4,8 @@
   "description": "Meeting room and site visit management for Sanmar Properties",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F5F3F0",
-  "theme_color": "#826B52",
+  "background_color": "#1A1614",
+  "theme_color": "#1A1614",
   "orientation": "portrait-primary",
   "icons": [
     {

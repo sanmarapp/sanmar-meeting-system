@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { AuditService } from '../audit/audit.service';
 import { MailService } from '../mail/mail.service';
+import { WhatsAppService } from '../whatsapp/whatsapp.service';
 import { CreateSiteVisitDto } from './dto/create-site-visit.dto';
 
 function mapVisitStatus(s: string): string {
@@ -45,7 +46,8 @@ export class SiteVisitsService {
     private prisma: PrismaService,
     private notifications: NotificationsGateway,
     private audit: AuditService,
-    private mail: MailService,
+    private mail:      MailService,
+    private whatsapp:  WhatsAppService,
   ) {}
 
   async findAll(query: { status?: string; search?: string; date?: string; limit?: number }) {
@@ -162,6 +164,66 @@ export class SiteVisitsService {
           visitDate:      visitDateFmt,
           visitTime:      dto.visitTime,
           bookedByName:   booker?.name ?? 'Sales Rep',
+        });
+      }
+    }
+
+    // ── Smart routing: notify appropriate team based on client type ──
+    // NEW_CLIENT / REFERRAL → Sales team (SALES_HOD, SALES_TEAM)
+    // EXISTING_CLIENT       → CSD team (CSD_TEAM)
+    // No clientType         → both teams (fallback)
+    const clientType = dto.clientType ?? null;
+    const targetRoles: string[] = !clientType
+      ? ['SALES_HOD', 'SALES_TEAM', 'CSD_TEAM']
+      : clientType === 'EXISTING_CLIENT'
+      ? ['CSD_TEAM']
+      : ['SALES_HOD', 'SALES_TEAM']; // NEW_CLIENT or REFERRAL
+
+    const teamLabel = clientType === 'EXISTING_CLIENT' ? 'CSD Team' : 'Sales Team';
+    const visitDateFmt = new Date(dto.visitDate).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+    const routedTeam = await this.prisma.user.findMany({
+      where: { role: { in: targetRoles as any }, isActive: true },
+      select: { id: true, name: true, email: true, whatsappNumber: true, notifyEmail: true, notifyWhatsapp: true },
+    });
+
+    for (const member of routedTeam) {
+      // WebSocket — real-time alert
+      this.notifications.emitToUser(member.id, {
+        type:   'pending',
+        title:  `New Site Visit — ${teamLabel}`,
+        body:   `${client.name} (${clientType ?? 'unknown type'}) at ${site.name} on ${new Date(dto.visitDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`,
+      });
+
+      // Email
+      if (member.notifyEmail && member.email) {
+        this.mail.sendSiteVisitTeamAlert({
+          recipientName:    member.name,
+          recipientEmail:   member.email,
+          clientName:       client.name,
+          clientType:       clientType ?? 'NEW_CLIENT',
+          siteName:         site.name,
+          visitDate:        visitDateFmt,
+          visitTime:        dto.visitTime,
+          bookedByName:     booker?.name ?? 'Sales Rep',
+          partySize:        dto.partySize,
+          assistanceContact: dto.assistanceContact,
+        });
+      }
+
+      // WhatsApp
+      if (member.notifyWhatsapp && member.whatsappNumber) {
+        this.whatsapp.sendSiteVisitTeamAlert({
+          phone:            member.whatsappNumber,
+          name:             member.name,
+          clientName:       client.name,
+          clientType:       clientType ?? 'NEW_CLIENT',
+          siteName:         site.name,
+          visitDate:        visitDateFmt,
+          visitTime:        dto.visitTime,
+          bookedByName:     booker?.name ?? 'Sales Rep',
+          partySize:        dto.partySize,
+          assistanceContact: dto.assistanceContact,
         });
       }
     }

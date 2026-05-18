@@ -49,6 +49,19 @@ export interface SiteVisitConfirmationPayload {
   bookedByName:   string;
 }
 
+export interface SiteVisitTeamAlertPayload {
+  recipientName:     string;
+  recipientEmail:    string;
+  clientName:        string;
+  clientType:        string;  // 'NEW_CLIENT' | 'EXISTING_CLIENT' | 'REFERRAL'
+  siteName:          string;
+  visitDate:         string;
+  visitTime:         string;
+  bookedByName:      string;
+  partySize?:        number;
+  assistanceContact?: string;
+}
+
 // ─── Mail service ───────────────────────────────────────────────
 @Injectable()
 export class MailService {
@@ -111,6 +124,28 @@ export class MailService {
       visitTime:   p.visitTime,
       bookedBy:    p.bookedByName,
     });
+  }
+
+  // ── Site visit: team routing alert ──────────────────────────
+  async sendSiteVisitTeamAlert(p: SiteVisitTeamAlertPayload) {
+    await this.send(
+      p.recipientEmail,
+      `Site Visit Assigned: ${p.clientName} at ${p.siteName}`,
+      'site-visit-team-alert',
+      {
+        recipientName:    p.recipientName,
+        clientName:       p.clientName,
+        siteName:         p.siteName,
+        visitDate:        p.visitDate,
+        visitTime:        p.visitTime,
+        bookedByName:     p.bookedByName,
+        partySize:        p.partySize,
+        assistanceContact: p.assistanceContact,
+        isNew:      p.clientType === 'NEW_CLIENT',
+        isReferral: p.clientType === 'REFERRAL',
+        isExisting: p.clientType === 'EXISTING_CLIENT',
+      },
+    );
   }
 
   // ── Internal helper — fire-and-forget, never throws ─────────

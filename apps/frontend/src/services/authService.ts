@@ -17,6 +17,9 @@ export type UserRole =
   | 'SUPER_ADMIN'     // Super admin — full system + config access
   | 'CORPORATE_ADMIN' // Corporate office admin — approves bookings
   | 'DEPT_MANAGER'    // Head of Department — notification-only, no approval authority
+  | 'SALES_HOD'       // Head of Sales — new client routing lead
+  | 'SALES_TEAM'      // Sales representative — handles new client site visits
+  | 'CSD_TEAM'        // Customer Service Dept — handles existing client site visits
   | 'EMPLOYEE'        // Regular staff — books rooms, views own history
   | 'RECEPTIONIST'    // Front desk — operational scheduling support
   | 'SITE_ADMIN';     // Project site manager — manages site visits

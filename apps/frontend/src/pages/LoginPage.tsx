@@ -63,90 +63,128 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-4">
-      {/* Card */}
-      <div className="w-full max-w-[400px]">
+    <div
+      className="min-h-screen flex"
+      style={{ background: '#F5F3F0' }}
+    >
+      {/* ── Left brand panel ── */}
+      <div
+        className="hidden lg:flex flex-col items-center justify-center flex-1 px-12"
+        style={{ background: '#1A1614' }}
+      >
+        {/* Wordmark */}
+        <img
+          src="/logo.svg"
+          alt="Sanmar"
+          className="w-[200px] h-auto"
+          draggable={false}
+        />
 
-        {/* S Icon logo — login branding only */}
-        <div className="flex justify-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-primary-500 flex items-center justify-center shadow-md">
-            <span
-              className="text-white text-4xl font-normal leading-none select-none"
-              style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
-            >
-              S
-            </span>
+        {/* Divider */}
+        <div
+          className="mt-6 mb-5"
+          style={{
+            width: '40px',
+            height: '1px',
+            background: 'rgba(201,169,122,0.35)',
+          }}
+        />
+
+        {/* Tagline */}
+        <p
+          className="text-[11px] font-normal uppercase tracking-[0.18em] text-center"
+          style={{ color: 'rgba(201,169,122,0.55)' }}
+        >
+          Meeting Room Booking
+        </p>
+      </div>
+
+      {/* ── Right form panel ── */}
+      <div className="flex flex-col items-center justify-center w-full lg:w-[460px] shrink-0 px-6 py-12">
+
+        {/* Mobile-only wordmark */}
+        <div className="flex justify-center mb-8 lg:hidden">
+          <div
+            className="flex items-center justify-center rounded-2xl px-6 py-4"
+            style={{ background: '#1A1614' }}
+          >
+            <img
+              src="/logo.svg"
+              alt="Sanmar"
+              className="w-[140px] h-auto"
+              draggable={false}
+            />
           </div>
         </div>
 
         {/* Heading */}
-        <div className="text-center mb-8">
-          <h1 className="font-display text-3xl font-semibold text-neutral-900 mb-2">
+        <div className="w-full max-w-[360px]">
+          <h1 className="font-display text-2xl font-semibold text-neutral-900 mb-1">
             {AUTH.loginTitle}
           </h1>
-          <p className="text-sm text-neutral-500 leading-relaxed">
+          <p className="text-sm text-neutral-400 mb-7 leading-relaxed">
             {AUTH.loginSubtitle}
           </p>
+
+          {/* Form card */}
+          <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm p-7">
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
+              <Input
+                label="Email address"
+                type="email"
+                placeholder="you@mysanmar.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                error={emailError}
+                prefix={<Mail size={14} strokeWidth={1.75} />}
+                autoComplete="email"
+                required
+              />
+
+              <Input
+                label="Password"
+                type={showPass ? 'text' : 'password'}
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                error={passError}
+                prefix={<Lock size={14} strokeWidth={1.75} />}
+                suffix={
+                  <button
+                    type="button"
+                    onClick={() => setShowPass((v) => !v)}
+                    className="hover:text-neutral-600 transition-colors"
+                    tabIndex={-1}
+                    aria-label={showPass ? 'Hide password' : 'Show password'}
+                  >
+                    {showPass
+                      ? <EyeOff size={14} strokeWidth={1.75} />
+                      : <Eye size={14} strokeWidth={1.75} />
+                    }
+                  </button>
+                }
+                autoComplete="current-password"
+                required
+              />
+
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                loading={loading}
+                fullWidth
+                className="mt-6"
+              >
+                {AUTH.loginCta}
+              </Button>
+            </form>
+          </div>
+
+          {/* Footer */}
+          <p className="text-center text-xs text-neutral-400 mt-6">
+            Sanmar Properties · Internal Access Only
+          </p>
         </div>
-
-        {/* Form card */}
-        <div className="bg-white rounded-2xl border border-neutral-200 shadow-md p-7">
-          <form onSubmit={handleSubmit} noValidate className="space-y-4">
-            <Input
-              label="Email address"
-              type="email"
-              placeholder="you@mysanmar.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              error={emailError}
-              prefix={<Mail size={14} strokeWidth={1.75} />}
-              autoComplete="email"
-              required
-            />
-
-            <Input
-              label="Password"
-              type={showPass ? 'text' : 'password'}
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              error={passError}
-              prefix={<Lock size={14} strokeWidth={1.75} />}
-              suffix={
-                <button
-                  type="button"
-                  onClick={() => setShowPass((v) => !v)}
-                  className="hover:text-neutral-600 transition-colors"
-                  tabIndex={-1}
-                  aria-label={showPass ? 'Hide password' : 'Show password'}
-                >
-                  {showPass
-                    ? <EyeOff size={14} strokeWidth={1.75} />
-                    : <Eye size={14} strokeWidth={1.75} />
-                  }
-                </button>
-              }
-              autoComplete="current-password"
-              required
-            />
-
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              loading={loading}
-              fullWidth
-              className="mt-6"
-            >
-              {AUTH.loginCta}
-            </Button>
-          </form>
-        </div>
-
-        {/* Footer */}
-        <p className="text-center text-xs text-neutral-400 mt-6">
-          Sanmar Properties · Internal Access Only
-        </p>
       </div>
     </div>
   );

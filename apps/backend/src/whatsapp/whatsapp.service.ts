@@ -125,6 +125,34 @@ export class WhatsAppService {
     await this.send(params.phone, msg);
   }
 
+  // ── Site visit team routing alert ────────────────────────────
+  async sendSiteVisitTeamAlert(params: {
+    phone: string; name: string; clientName: string; clientType: string;
+    siteName: string; visitDate: string; visitTime: string;
+    bookedByName: string; partySize?: number;
+  }) {
+    const typeLabel: Record<string, string> = {
+      NEW_CLIENT:      '🆕 New Client',
+      EXISTING_CLIENT: '🔄 Existing Client',
+      REFERRAL:        '👥 Referral',
+    };
+    const label = typeLabel[params.clientType] ?? params.clientType;
+    const msg =
+      `🏗️ *Site Visit Assigned to Your Team*\n\n` +
+      `Hi ${params.name},\n\n` +
+      `A site visit has been routed to your team.\n\n` +
+      `👤 Client: ${params.clientName}\n` +
+      `🏷️ Type: ${label}\n` +
+      `📍 Site: ${params.siteName}\n` +
+      `📅 Date: ${params.visitDate}\n` +
+      `⏰ Time: ${params.visitTime}\n` +
+      (params.partySize && params.partySize > 1 ? `👨‍👩‍👧 Party Size: ${params.partySize}\n` : '') +
+      `\nBooked by: ${params.bookedByName}\n\n` +
+      `Please coordinate with the client and prepare accordingly.\n\n` +
+      `— Sanmar Properties`;
+    await this.send(params.phone, msg);
+  }
+
   // ── Normalize BD phone numbers ────────────────────────────────
   private normalizePhone(phone: string): string {
     let p = phone.replace(/\s+/g, '').replace(/[^\d+]/g, '');

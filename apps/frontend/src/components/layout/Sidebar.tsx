@@ -58,11 +58,13 @@ export function Sidebar() {
     >
       {/* ── Logo ── */}
       <div className="px-5 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(201,169,122,0.12)' }}>
-        <img src="/logo.svg" alt="Sanmar" className="h-7 w-auto" draggable={false} />
-        <p className="text-[9px] font-normal uppercase tracking-[0.12em] mt-1.5 pl-0.5"
-          style={{ color: 'rgba(201,169,122,0.5)' }}>
-          Meeting System
-        </p>
+        <img src="/logo.svg" alt="Sanmar" className="w-[108px] h-auto" draggable={false} />
+        {user?.locations && user.locations.length > 0 && (
+          <p className="text-[9px] font-normal uppercase tracking-[0.12em] mt-1.5 pl-0.5"
+            style={{ color: 'rgba(201,169,122,0.5)' }}>
+            {user.locations[0].name}
+          </p>
+        )}
       </div>
 
       {/* ── Navigation ── */}

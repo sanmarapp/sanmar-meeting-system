@@ -62,6 +62,9 @@ enum UserRole {
   SUPER_ADMIN     // Super Admin — full system access
   CORPORATE_ADMIN // Corporate Admin
   DEPT_MANAGER    // Head of Department
+  SALES_HOD       // Head of Sales — new client routing lead
+  SALES_TEAM      // Sales representative — handles new client visits
+  CSD_TEAM        // Customer Service Dept — handles existing client visits
   EMPLOYEE        // Regular staff
   RECEPTIONIST    // Front desk
   SITE_ADMIN      // Project site manager
