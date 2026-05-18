@@ -15,6 +15,7 @@ import { Badge } from '../components/ui/Badge';
 import { useAuth } from '../contexts/AuthContext';
 
 const ROLE_BADGE: Record<string, 'brand' | 'info' | 'success' | 'neutral' | 'warning'> = {
+  SUPER_ADMIN:     'brand',
   ADMIN:           'brand',
   CORPORATE_ADMIN: 'brand',
   DEPT_MANAGER:    'info',
@@ -24,6 +25,7 @@ const ROLE_BADGE: Record<string, 'brand' | 'info' | 'success' | 'neutral' | 'war
 };
 
 const ROLE_LABEL: Record<string, string> = {
+  SUPER_ADMIN:     'Super Admin',
   ADMIN:           'Admin',
   CORPORATE_ADMIN: 'Corporate Admin',
   DEPT_MANAGER:    'Head of Dept',

@@ -5,30 +5,30 @@ import { AuditService } from '../audit/audit.service';
 import { CreateSiteVisitDto } from './dto/create-site-visit.dto';
 
 function mapVisitStatus(s: string): string {
-  switch (s) {
-    case 'CLIENT_NO_SHOW': return 'NO_SHOW';
-    case 'CONFIRMED':      return 'SCHEDULED';
-    default:               return s; // SCHEDULED, CANCELLED, COMPLETED pass through
-  }
+  // CLIENT_NO_SHOW is legacy — map to canonical NO_SHOW
+  if (s === 'CLIENT_NO_SHOW') return 'NO_SHOW';
+  // CONFIRMED collapses to SCHEDULED for frontend display
+  if (s === 'CONFIRMED') return 'SCHEDULED';
+  return s; // SCHEDULED, RESCHEDULED, NO_SHOW, CANCELLED, COMPLETED pass through
 }
 
 function mapSiteReadyStatus(s: string): string {
-  switch (s) {
-    case 'READY':              return 'READY';
-    case 'PREPARING':          return 'PARTIAL';
-    case 'VISIT_IN_PROGRESS':  return 'PARTIAL';
-    case 'COMPLETED':          return 'READY';
-    default:                   return 'NOT_READY';
-  }
+  // New enum values map 1:1
+  if (['READY', 'NOT_READY', 'PARTIAL'].includes(s)) return s;
+  if (s === 'PREPARING' || s === 'VISIT_IN_PROGRESS') return 'PARTIAL';
+  if (s === 'COMPLETED') return 'READY';
+  return 'NOT_READY'; // PENDING default
 }
 
 function transformVisit(v: any) {
   if (!v) return null;
   return {
     ...v,
-    status: mapVisitStatus(v.status),
+    status:          mapVisitStatus(v.status),
     siteReadyStatus: mapSiteReadyStatus(v.siteReadyStatus),
-    notes: v.specialRequirements,
+    notes:           v.specialRequirements,
+    clientType:      v.clientType      ?? null,
+    assistanceContact: v.assistanceContact ?? null,
   };
 }
 
@@ -50,11 +50,12 @@ export class SiteVisitsService {
     const where: any = {};
 
     if (query.status) {
-      const reverseMap: Record<string, string> = {
-        SCHEDULED: 'SCHEDULED', COMPLETED: 'COMPLETED',
-        CANCELLED: 'CANCELLED', NO_SHOW: 'CLIENT_NO_SHOW',
-      };
-      where.status = reverseMap[query.status] ?? query.status;
+      // NO_SHOW matches both the new native value and legacy CLIENT_NO_SHOW
+      if (query.status === 'NO_SHOW') {
+        where.status = { in: ['NO_SHOW', 'CLIENT_NO_SHOW'] };
+      } else {
+        where.status = query.status;
+      }
     }
 
     if (query.date) {
@@ -104,6 +105,9 @@ export class SiteVisitsService {
         status:              'SCHEDULED' as any,
         siteReadyStatus:     'PENDING' as any,
         specialRequirements: dto.notes,
+        clientType:          dto.clientType   as any ?? null,
+        assistanceContact:   dto.assistanceContact ?? null,
+        partySize:           dto.partySize ?? 1,
       },
       include: VISIT_INCLUDE,
     });

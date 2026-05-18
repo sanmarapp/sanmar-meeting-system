@@ -1,28 +1,42 @@
 import { api } from './api';
 
 // ─── Types ─────────────────────────────────────────────────────
-export type VisitStatus    = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
+export type VisitStatus =
+  | 'SCHEDULED'
+  | 'RESCHEDULED'
+  | 'COMPLETED'
+  | 'CANCELLED'
+  | 'NO_SHOW';
+
 export type SiteReadyStatus = 'READY' | 'NOT_READY' | 'PARTIAL';
 
+export type ClientType = 'NEW_CLIENT' | 'EXISTING_CLIENT' | 'REFERRAL';
+
 export interface SiteVisit {
-  id:             string;
-  visitDate:      string;
-  visitTime:      string;
-  status:         VisitStatus;
-  notes?:         string;
-  client:         { id: string; name: string; email?: string; phone?: string };
-  site:           { id: string; name: string; address?: string };
-  bookedBy:       { id: string; name: string };
+  id:               string;
+  visitDate:        string;
+  visitTime:        string;
+  partySize?:       number;
+  status:           VisitStatus;
+  notes?:           string;
+  clientType?:      ClientType;
+  assistanceContact?: string;
+  client:           { id: string; name: string; email?: string; phone?: string };
+  site:             { id: string; name: string; address?: string };
+  bookedBy:         { id: string; name: string };
   siteReadyStatus?: SiteReadyStatus;
-  createdAt:      string;
+  createdAt:        string;
 }
 
 export interface CreateSiteVisitDto {
-  clientId:   string;
-  siteId:     string;
-  visitDate:  string;
-  visitTime:  string;
-  notes?:     string;
+  clientId:          string;
+  siteId:            string;
+  visitDate:         string;
+  visitTime:         string;
+  partySize?:        number;
+  notes?:            string;
+  clientType?:       ClientType;
+  assistanceContact?: string;
 }
 
 export interface SiteVisitListParams {

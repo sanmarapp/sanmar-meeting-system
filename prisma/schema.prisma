@@ -58,12 +58,13 @@ model User {
 }
 
 enum UserRole {
-  ADMIN // Master Admin (max 3)
-  DEPT_MANAGER // HOD
-  EMPLOYEE // Regular staff
-  RECEPTIONIST // Front desk
-  SITE_ADMIN // Project site manager
+  ADMIN           // Master Admin (max 3)
+  SUPER_ADMIN     // Super Admin — full system access
   CORPORATE_ADMIN // Corporate Admin
+  DEPT_MANAGER    // Head of Department
+  EMPLOYEE        // Regular staff
+  RECEPTIONIST    // Front desk
+  SITE_ADMIN      // Project site manager
 }
 
 model Department {
@@ -274,6 +275,10 @@ model ProjectSite {
   marketingSuiteCapacity Int?    @map("marketing_suite_capacity")
   marketingSuiteNotes    String? @map("marketing_suite_notes")
 
+  // Navigation (for site visit briefing)
+  mapsUrl        String? @map("maps_url")         // Google Maps / Waze link
+  navigationLink String? @map("navigation_link")  // Custom navigation URL or embed
+
   // Visit configuration (Admin controls)
   allowVisits  Boolean @default(true) @map("allow_visits")
   isVisitReady Boolean @default(false) @map("is_visit_ready")
@@ -327,6 +332,10 @@ model SiteVisit {
   preparationChecklist Json            @default("{\"suite_cleaned\":false,\"food_arranged\":false,\"presentation_ready\":false,\"demo_flat_ready\":false}") @map("preparation_checklist")
   siteReadyStatus      SiteReadyStatus @default(PENDING) @map("site_ready_status")
 
+  // Client classification
+  clientType         ClientType? @map("client_type")       // NEW | EXISTING | REFERRAL
+  assistanceContact  String?     @map("assistance_contact") // Name of person who assisted/referred
+
   specialRequirements String? @map("special_requirements")
 
   status          VisitStatus
@@ -346,19 +355,29 @@ model SiteVisit {
 }
 
 enum SiteReadyStatus {
-  PENDING // Site admin not yet notified
-  PREPARING // Site admin preparing
-  READY // Site ready for visit
+  PENDING           // Site admin not yet notified
+  PREPARING         // Site admin preparing
+  READY             // Site ready for visit
+  NOT_READY         // Site explicitly not ready
+  PARTIAL           // Partially ready
   VISIT_IN_PROGRESS // Visit currently happening
-  COMPLETED // Visit completed
+  COMPLETED         // Visit completed
 }
 
 enum VisitStatus {
-  SCHEDULED // Visit scheduled
-  CONFIRMED // Client confirmed attendance
-  CLIENT_NO_SHOW // Client didn't show up
-  CANCELLED // Cancelled by sales/client
-  COMPLETED // Visit completed successfully
+  SCHEDULED      // Visit scheduled
+  CONFIRMED      // Client confirmed attendance
+  RESCHEDULED    // Visit rescheduled to new date/time
+  NO_SHOW        // Client didn't show up
+  CLIENT_NO_SHOW // Legacy alias for NO_SHOW
+  CANCELLED      // Cancelled by sales/client
+  COMPLETED      // Visit completed successfully
+}
+
+enum ClientType {
+  NEW_CLIENT      // First-time visitor
+  EXISTING_CLIENT // Returning client
+  REFERRAL        // Referred by someone
 }
 
 // ========================================

@@ -14,6 +14,7 @@ export interface ChangePasswordDto {
 // Mirrors the UserRole enum in prisma/schema.prisma exactly
 export type UserRole =
   | 'ADMIN'           // Master admin — full system access
+  | 'SUPER_ADMIN'     // Super admin — full system + config access
   | 'CORPORATE_ADMIN' // Corporate office admin — approves bookings
   | 'DEPT_MANAGER'    // Head of Department — notification-only, no approval authority
   | 'EMPLOYEE'        // Regular staff — books rooms, views own history

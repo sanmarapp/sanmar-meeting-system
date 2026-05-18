@@ -16,6 +16,7 @@ type RoleFilter = AuthUser['role'] | 'ALL';
 
 const ROLE_TABS: { label: string; value: RoleFilter }[] = [
   { label: 'All',             value: 'ALL' },
+  { label: 'Super Admin',     value: 'SUPER_ADMIN' },
   { label: 'Admin',           value: 'ADMIN' },
   { label: 'Corporate Admin', value: 'CORPORATE_ADMIN' },
   { label: 'HoD',             value: 'DEPT_MANAGER' },
@@ -25,6 +26,7 @@ const ROLE_TABS: { label: string; value: RoleFilter }[] = [
 ];
 
 const ROLE_BADGE: Record<string, 'brand' | 'info' | 'success' | 'neutral' | 'warning'> = {
+  SUPER_ADMIN:     'brand',
   ADMIN:           'brand',
   CORPORATE_ADMIN: 'brand',
   DEPT_MANAGER:    'info',
@@ -34,6 +36,7 @@ const ROLE_BADGE: Record<string, 'brand' | 'info' | 'success' | 'neutral' | 'war
 };
 
 const ROLE_LABEL: Record<string, string> = {
+  SUPER_ADMIN:     'Super Admin',
   ADMIN:           'Admin',
   CORPORATE_ADMIN: 'Corporate Admin',
   DEPT_MANAGER:    'Head of Dept',
@@ -43,6 +46,7 @@ const ROLE_LABEL: Record<string, string> = {
 };
 
 const ROLE_ICON: Record<string, React.ReactNode> = {
+  SUPER_ADMIN:     <ShieldCheck size={12} strokeWidth={1.75} />,
   ADMIN:           <ShieldCheck size={12} strokeWidth={1.75} />,
   CORPORATE_ADMIN: <ShieldCheck size={12} strokeWidth={1.75} />,
   DEPT_MANAGER:    <Shield size={12} strokeWidth={1.75} />,
