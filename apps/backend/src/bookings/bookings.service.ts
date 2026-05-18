@@ -172,7 +172,8 @@ export class BookingsService {
       changes: { title: dto.title, roomId: dto.roomId, startTime: dto.startTime, endTime: dto.endTime },
     });
 
-    const dateLabel = start.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    const dateLabel      = start.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const startTimeLabel = start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
     // Notify approvers (ADMIN, CORPORATE_ADMIN) — action required
     this.notifications.emitToRole('ADMIN', {
@@ -215,8 +216,6 @@ export class BookingsService {
       where: { role: { in: ['ADMIN', 'CORPORATE_ADMIN', 'SUPER_ADMIN'] as any }, isActive: true },
       select: { id: true, name: true, email: true, whatsappNumber: true, notifyEmail: true, notifyWhatsapp: true },
     });
-    const dateLabel      = start.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-    const startTimeLabel = start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
     for (const admin of admins) {
       if (admin.notifyEmail && admin.email) {
         this.mail.sendBookingApprovalRequest({
