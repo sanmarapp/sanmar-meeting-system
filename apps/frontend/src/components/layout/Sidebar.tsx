@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, CalendarDays, Building2, MapPin,
-  Users, CheckSquare, Settings, LogOut, Bell,
+  Users, CheckSquare, Settings, LogOut, Bell, Store,
 } from 'lucide-react';
 import { cn } from '../../lib/cn';
 import { useAuth } from '../../contexts/AuthContext';
@@ -14,6 +14,7 @@ const NAV_MAIN = [
   { to: '/bookings',    label: 'Bookings',    icon: CalendarDays    },
   { to: '/rooms',       label: 'Rooms',       icon: Building2       },
   { to: '/site-visits', label: 'Site Visits', icon: MapPin          },
+  { to: '/fairs',       label: 'Property Fairs', icon: Store        },
 ];
 
 const NAV_ADMIN = [

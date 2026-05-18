@@ -43,6 +43,12 @@ model User {
   siteVisitsBooked SiteVisit[]   @relation("SalesRep")
   sitesManaged     ProjectSite[] @relation("SiteAdmin")
 
+  // Property Fair relationships
+  fairsCreated          Fair[]        @relation("FairCreator")
+  fairVisitorRegistrations FairVisitor[] @relation("VisitorRegistrar")
+  fairLeadsCaptured     FairLead[]    @relation("LeadCapturer")
+  fairLeadsAssigned     FairLead[]    @relation("LeadAssignee")
+
   isActive           Boolean @default(true) @map("is_active")
   mustChangePassword Boolean @default(true) @map("must_change_password")
 
@@ -94,6 +100,7 @@ model Location {
 
   rooms Room[]
   users User[]
+  fairs Fair[]
 
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
@@ -438,6 +445,141 @@ model SystemConfig {
 
   @@index([group])
   @@map("system_config")
+}
+
+// ========================================
+// PROPERTY FAIR SYSTEM
+// ========================================
+
+model Fair {
+  id         String   @id @default(cuid())
+  name       String   // "Sanmar Property Fair 2025"
+  startDate  DateTime @map("start_date")
+  endDate    DateTime @map("end_date")
+  venue      String   // "Radisson Blu, Chittagong"
+  city       String   // "Chittagong" | "Dhaka"
+
+  location   Location? @relation(fields: [locationId], references: [id])
+  locationId String?   @map("location_id")
+
+  description    String?  @db.Text
+  targetVisitors Int?     @map("target_visitors")
+  status         FairStatus @default(UPCOMING)
+
+  // Team assignments (JSON: [{ userId, name, role: "MANAGER"|"SALES"|"REGISTRATION" }])
+  teamAssignments Json @default("[]") @map("team_assignments")
+
+  visitors FairVisitor[]
+  leads    FairLead[]
+
+  createdBy   User   @relation("FairCreator", fields: [createdById], references: [id])
+  createdById String @map("created_by_id")
+
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([startDate])
+  @@index([status])
+  @@index([locationId])
+  @@map("fairs")
+}
+
+enum FairStatus {
+  UPCOMING  // Planned, not yet started
+  ACTIVE    // Currently running
+  COMPLETED // Ended
+  CANCELLED // Cancelled
+}
+
+model FairVisitor {
+  id     String @id @default(cuid())
+  fair   Fair   @relation(fields: [fairId], references: [id])
+  fairId String @map("fair_id")
+
+  // Visitor details
+  name  String
+  phone String
+  email String?
+
+  registrationType RegistrationType @default(WALK_IN) @map("registration_type")
+  source           String?          // "Social Media", "Referral", "Print Ad", "Direct"
+
+  // Check-in tracking
+  checkedIn   Boolean   @default(false) @map("checked_in")
+  checkInTime DateTime? @map("check_in_time")
+
+  notes String?
+
+  leads FairLead[]
+
+  registeredBy   User?   @relation("VisitorRegistrar", fields: [registeredById], references: [id])
+  registeredById String? @map("registered_by_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([fairId])
+  @@index([phone])
+  @@map("fair_visitors")
+}
+
+enum RegistrationType {
+  WALK_IN        // Arrived without prior registration
+  PRE_REGISTERED // Registered beforehand
+  INVITED        // VIP / specially invited
+}
+
+model FairLead {
+  id        String      @id @default(cuid())
+  fair      Fair        @relation(fields: [fairId], references: [id])
+  fairId    String      @map("fair_id")
+  visitor   FairVisitor @relation(fields: [visitorId], references: [id])
+  visitorId String      @map("visitor_id")
+
+  // Interest details
+  interestedProjects String[]          @map("interested_projects")
+  budgetRange        String?           @map("budget_range")   // "1-2 Crore", "5+ Crore"
+  interestLevel      LeadInterestLevel @default(WARM) @map("interest_level")
+
+  // Follow-up
+  requiresFollowUp Boolean   @default(true) @map("requires_follow_up")
+  followUpDate     DateTime? @map("follow_up_date")
+  followUpNotes    String?   @db.Text @map("follow_up_notes")
+
+  // Assignment
+  assignedTo   User?   @relation("LeadAssignee", fields: [assignedToId], references: [id])
+  assignedToId String? @map("assigned_to_id")
+
+  status LeadStatus @default(NEW)
+  notes  String?    @db.Text
+
+  capturedBy   User   @relation("LeadCapturer", fields: [capturedById], references: [id])
+  capturedById String @map("captured_by_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([fairId])
+  @@index([visitorId])
+  @@index([interestLevel])
+  @@index([status])
+  @@map("fair_leads")
+}
+
+enum LeadInterestLevel {
+  HOT  // Ready to buy / serious
+  WARM // Interested, needs nurturing
+  COLD // Just browsing
+}
+
+enum LeadStatus {
+  NEW         // Just captured at fair
+  CONTACTED   // Initial follow-up done
+  QUALIFIED   // Confirmed interested
+  SITE_VISIT  // Site visit booked
+  NEGOTIATING // In negotiation
+  CONVERTED   // Booking / sale made
+  LOST        // No longer interested
 }
 
 // ========================================

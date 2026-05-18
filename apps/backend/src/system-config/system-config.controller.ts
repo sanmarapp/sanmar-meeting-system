@@ -18,7 +18,7 @@ class UpdateConfigDto {
   entries: ConfigEntryDto[];
 }
 
-@Controller('api/system-config')
+@Controller('system-config')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN', 'SUPER_ADMIN')
 export class SystemConfigController {

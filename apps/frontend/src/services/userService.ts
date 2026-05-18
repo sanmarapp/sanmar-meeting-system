@@ -39,11 +39,6 @@ export const userService = {
     return data;
   },
 
-  async toggleActive(id: string): Promise<AuthUser> {
-    const { data } = await api.patch<AuthUser>(`/users/${id}/toggle-active`);
-    return data;
-  },
-
   async updateProfile(id: string, dto: Partial<Pick<AuthUser, 'name' | 'notifyEmail' | 'notifyWhatsapp'>>): Promise<AuthUser> {
     const { data } = await api.patch<AuthUser>(`/users/${id}`, dto);
     return data;

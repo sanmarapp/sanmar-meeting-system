@@ -13,6 +13,7 @@ import { MailModule }         from './mail/mail.module';
 import { AuditModule }        from './audit/audit.module';
 import { SystemConfigModule } from './system-config/system-config.module';
 import { WhatsAppModule }     from './whatsapp/whatsapp.module';
+import { FairsModule }        from './fairs/fairs.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { WhatsAppModule }     from './whatsapp/whatsapp.module';
     AuditModule,
     SystemConfigModule,
     WhatsAppModule,
+    FairsModule,
   ],
   controllers: [AppController],
   providers:   [AppService],
