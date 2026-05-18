@@ -15,7 +15,20 @@ export interface PaginatedUsers {
   limit: number;
 }
 
+export interface LocationItem {
+  id:      string;
+  name:    string;
+  city:    string;
+  type:    string;
+  address: string;
+}
+
 export const userService = {
+  async listLocations(): Promise<LocationItem[]> {
+    const { data } = await api.get<LocationItem[]>('/users/locations');
+    return data;
+  },
+
   async list(params?: UserListParams): Promise<PaginatedUsers> {
     const { data } = await api.get<PaginatedUsers>('/users', { params });
     return data;
@@ -33,6 +46,16 @@ export const userService = {
 
   async updateProfile(id: string, dto: Partial<Pick<AuthUser, 'name' | 'notifyEmail' | 'notifyWhatsapp'>>): Promise<AuthUser> {
     const { data } = await api.patch<AuthUser>(`/users/${id}`, dto);
+    return data;
+  },
+
+  async assignLocations(id: string, locationIds: string[]): Promise<AuthUser> {
+    const { data } = await api.patch<AuthUser>(`/users/${id}`, { locationIds });
+    return data;
+  },
+
+  async toggleActive(id: string): Promise<AuthUser> {
+    const { data } = await api.patch<AuthUser>(`/users/${id}/toggle-active`);
     return data;
   },
 };

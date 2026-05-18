@@ -1,7 +1,8 @@
 import { useState, useMemo, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Search, X, ShieldCheck, Shield, Eye, User as UserIcon } from 'lucide-react';
-import { userService } from '../services/userService';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Search, X, ShieldCheck, Shield, Eye, User as UserIcon, MapPin, ChevronRight } from 'lucide-react';
+import { toast } from 'sonner';
+import { userService, type LocationItem } from '../services/userService';
 import { type AuthUser } from '../services/authService';
 import { AppShell } from '../components/layout/AppShell';
 import { Header } from '../components/layout/Header';
@@ -79,15 +80,35 @@ function fmtLastLogin(iso?: string) {
 // ─── Component ─────────────────────────────────────────────────
 export function UsersPage() {
   const { user: me } = useAuth();
-  const isAdmin = me?.role === 'ADMIN';
+  const qc = useQueryClient();
+  const isAdmin = me?.role === 'ADMIN' || me?.role === 'SUPER_ADMIN' || me?.role === 'CORPORATE_ADMIN';
 
-  const [roleFilter, setRoleFilter] = useState<RoleFilter>('ALL');
-  const [search, setSearch] = useState('');
+  const [roleFilter,   setRoleFilter]   = useState<RoleFilter>('ALL');
+  const [search,       setSearch]       = useState('');
+  const [selectedUser, setSelectedUser] = useState<AuthUser | null>(null);
+  const [pendingLocs,  setPendingLocs]  = useState<string[]>([]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['users'],
     queryFn:  () => userService.list({ limit: 100 }),
     enabled:  isAdmin,
+  });
+
+  const { data: locations = [] } = useQuery<LocationItem[]>({
+    queryKey: ['locations'],
+    queryFn:  () => userService.listLocations(),
+    enabled:  isAdmin,
+  });
+
+  const assignMutation = useMutation({
+    mutationFn: ({ userId, locationIds }: { userId: string; locationIds: string[] }) =>
+      userService.assignLocations(userId, locationIds),
+    onSuccess: () => {
+      toast.success('Tower assignment saved');
+      qc.invalidateQueries({ queryKey: ['users'] });
+      setSelectedUser(null);
+    },
+    onError: () => toast.error('Failed to save assignment'),
   });
 
   const allUsers = data?.data ?? [];
@@ -105,6 +126,22 @@ export function UsersPage() {
 
   const clearFilters = useCallback(() => { setSearch(''); setRoleFilter('ALL'); }, []);
   const hasFilters = roleFilter !== 'ALL' || !!search;
+
+  function openUser(u: AuthUser) {
+    setSelectedUser(u);
+    setPendingLocs((u.locations ?? []).map((l: { id: string }) => l.id));
+  }
+
+  function toggleLoc(locId: string) {
+    setPendingLocs(prev =>
+      prev.includes(locId) ? prev.filter(id => id !== locId) : [...prev, locId],
+    );
+  }
+
+  function saveAssignment() {
+    if (!selectedUser) return;
+    assignMutation.mutate({ userId: selectedUser.id, locationIds: pendingLocs });
+  }
 
   if (!isAdmin) {
     return (
@@ -175,6 +212,7 @@ export function UsersPage() {
                   <th className="px-5 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">User</th>
                   <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">Role</th>
                   <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">Department</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">Tower</th>
                   <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">Last Login</th>
                   <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">Status</th>
                 </tr>
@@ -184,7 +222,7 @@ export function UsersPage() {
                   <SkeletonTable rows={8} />
                 ) : filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-20">
+                    <td colSpan={6} className="py-20">
                       <EmptyState
                         variant="search"
                         title={hasFilters ? 'No users match your search' : 'No users found'}
@@ -197,10 +235,11 @@ export function UsersPage() {
                   filtered.map((u: AuthUser) => (
                     <tr
                       key={u.id}
-                      className="transition-colors"
+                      className="transition-colors cursor-pointer"
                       style={{ borderBottom: '1px solid #F5F3F0' }}
                       onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#FAFAF9')}
                       onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}
+                      onClick={() => openUser(u)}
                     >
                       {/* User avatar + name */}
                       <td className="px-5 py-3.5">
@@ -237,6 +276,22 @@ export function UsersPage() {
                         {u.designation && <p className="text-xs text-neutral-400 truncate max-w-[150px]">{u.designation}</p>}
                       </td>
 
+                      {/* Tower */}
+                      <td className="px-4 py-3.5">
+                        {(u.locations ?? []).length > 0 ? (
+                          <div className="flex flex-col gap-0.5">
+                            {(u.locations as Array<{ id: string; name: string; city: string }>).map(l => (
+                              <span key={l.id} className="flex items-center gap-1 text-xs text-neutral-600">
+                                <MapPin size={10} strokeWidth={1.75} style={{ color: '#C9A97A' }} />
+                                {l.city}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-neutral-300">—</span>
+                        )}
+                      </td>
+
                       {/* Last login */}
                       <td className="px-4 py-3.5">
                         <p className="text-neutral-600 text-xs">{fmtLastLogin(u.lastLoginAt)}</p>
@@ -256,6 +311,89 @@ export function UsersPage() {
           </div>
         </div>
       </div>
+      {/* ── Tower Assignment Drawer ── */}
+      {selectedUser && (
+        <div className="fixed inset-0 z-50 flex justify-end" onClick={() => setSelectedUser(null)}>
+          <div
+            className="relative h-full w-full max-w-[360px] bg-white shadow-xl flex flex-col"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="px-6 py-5" style={{ borderBottom: '1px solid #F0EDE9' }}>
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-sm font-normal text-neutral-500">Assign Tower</p>
+                <button
+                  onClick={() => setSelectedUser(null)}
+                  className="p-1 rounded hover:bg-neutral-100 transition-colors"
+                >
+                  <X size={14} strokeWidth={1.75} className="text-neutral-400" />
+                </button>
+              </div>
+              <div className="flex items-center gap-2.5 mt-3">
+                <div
+                  className="w-9 h-9 rounded-lg flex items-center justify-center text-xs font-normal shrink-0"
+                  style={{ background: 'rgba(201,169,122,0.12)', color: '#826B52' }}
+                >
+                  {initials(selectedUser.name)}
+                </div>
+                <div>
+                  <p className="text-sm font-normal text-neutral-900">{selectedUser.name}</p>
+                  <p className="text-xs text-neutral-400">{selectedUser.email}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Location toggles */}
+            <div className="flex-1 px-6 py-5 space-y-3 overflow-y-auto">
+              <p className="text-xs text-neutral-400 uppercase tracking-wider mb-4">Select office location(s)</p>
+              {locations.length === 0 ? (
+                <p className="text-sm text-neutral-400">No locations found in the system.</p>
+              ) : (
+                locations.map((loc) => {
+                  const active = pendingLocs.includes(loc.id);
+                  return (
+                    <button
+                      key={loc.id}
+                      onClick={() => toggleLoc(loc.id)}
+                      className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border text-left transition-all"
+                      style={{
+                        borderColor: active ? '#C9A97A' : '#E8E4DF',
+                        background:  active ? 'rgba(201,169,122,0.06)' : 'transparent',
+                      }}
+                    >
+                      <div
+                        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                        style={{ background: active ? 'rgba(201,169,122,0.15)' : 'rgba(0,0,0,0.04)' }}
+                      >
+                        <MapPin size={14} strokeWidth={1.75} style={{ color: active ? '#C9A97A' : '#9CA3AF' }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-normal text-neutral-900">{loc.name}</p>
+                        <p className="text-xs text-neutral-400">{loc.city}</p>
+                      </div>
+                      {active && (
+                        <ChevronRight size={14} strokeWidth={1.75} style={{ color: '#C9A97A', flexShrink: 0 }} />
+                      )}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4" style={{ borderTop: '1px solid #F0EDE9' }}>
+              <button
+                onClick={saveAssignment}
+                disabled={assignMutation.isPending}
+                className="w-full py-2.5 rounded-xl text-sm font-normal transition-opacity"
+                style={{ background: '#1A1614', color: '#C9A97A', opacity: assignMutation.isPending ? 0.6 : 1 }}
+              >
+                {assignMutation.isPending ? 'Saving…' : 'Save Assignment'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }
