@@ -25,7 +25,11 @@
     "rxjs": "^7.8.1",
     "@nestjs/websockets": "^10.0.0",
     "@nestjs/platform-socket.io": "^10.0.0",
-    "socket.io": "^4.7.2"
+    "socket.io": "^4.7.2",
+    "@nestjs-modules/mailer": "^1.11.0",
+    "nodemailer": "^6.9.14",
+    "handlebars": "^4.7.8",
+    "axios": "^1.7.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, CalendarDays, Building2, MapPin,
-  Users, CheckSquare, Settings, LogOut,
+  Users, CheckSquare, Settings, LogOut, Bell,
 } from 'lucide-react';
 import { cn } from '../../lib/cn';
 import { useAuth } from '../../contexts/AuthContext';
@@ -17,9 +17,10 @@ const NAV_MAIN = [
 ];
 
 const NAV_ADMIN = [
-  { to: '/users',     label: 'Users',     icon: Users       },
-  { to: '/approvals', label: 'Approvals', icon: CheckSquare },
-  { to: '/settings',  label: 'Settings',  icon: Settings    },
+  { to: '/users',                   label: 'Users',          icon: Users       },
+  { to: '/approvals',               label: 'Approvals',      icon: CheckSquare },
+  { to: '/settings',                label: 'Settings',       icon: Settings    },
+  { to: '/settings/notifications',  label: 'Notifications',  icon: Bell        },
 ];
 
 // ─── Component ─────────────────────────────────────────────────

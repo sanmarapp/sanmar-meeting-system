@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { AuditService } from '../audit/audit.service';
+import { MailService } from '../mail/mail.service';
 import { CreateSiteVisitDto } from './dto/create-site-visit.dto';
 
 function mapVisitStatus(s: string): string {
@@ -44,6 +45,7 @@ export class SiteVisitsService {
     private prisma: PrismaService,
     private notifications: NotificationsGateway,
     private audit: AuditService,
+    private mail: MailService,
   ) {}
 
   async findAll(query: { status?: string; search?: string; date?: string; limit?: number }) {
@@ -121,13 +123,47 @@ export class SiteVisitsService {
       changes: { clientId: dto.clientId, siteId: dto.siteId, visitDate: dto.visitDate },
     });
 
-    // Notify site admin
+    // Notify site admin via WebSocket
     if (site.siteAdminId) {
       this.notifications.emitToUser(site.siteAdminId, {
         type: 'pending',
         title: 'New Site Visit Scheduled',
         body: `${client.name} visit scheduled at ${site.name} on ${new Date(dto.visitDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`,
       });
+    }
+
+    // Email: confirmation to the sales rep who booked
+    const booker = await this.prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true } });
+    if (booker?.email) {
+      const visitDateFmt = new Date(dto.visitDate).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      this.mail.sendSiteVisitConfirmation({
+        recipientName:  booker.name,
+        recipientEmail: booker.email,
+        visitId:        visit.id,
+        clientName:     client.name,
+        siteName:       site.name,
+        visitDate:      visitDateFmt,
+        visitTime:      dto.visitTime,
+        bookedByName:   booker.name,
+      });
+    }
+
+    // Email: also notify site admin if they have email
+    if (site.siteAdminId) {
+      const siteAdmin = await this.prisma.user.findUnique({ where: { id: site.siteAdminId }, select: { name: true, email: true, notifyEmail: true } });
+      if (siteAdmin?.email && siteAdmin.notifyEmail) {
+        const visitDateFmt = new Date(dto.visitDate).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        this.mail.sendSiteVisitConfirmation({
+          recipientName:  siteAdmin.name,
+          recipientEmail: siteAdmin.email,
+          visitId:        visit.id,
+          clientName:     client.name,
+          siteName:       site.name,
+          visitDate:      visitDateFmt,
+          visitTime:      dto.visitTime,
+          bookedByName:   booker?.name ?? 'Sales Rep',
+        });
+      }
     }
 
     return transformVisit(visit);

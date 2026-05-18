@@ -419,6 +419,25 @@ model NotificationTemplate {
 }
 
 // ========================================
+// SYSTEM CONFIGURATION (Super Admin managed)
+// ========================================
+
+model SystemConfig {
+  id    String @id @default(cuid())
+  key   String @unique // e.g. "smtp_host", "whatsapp_api_key"
+  value String @db.Text  // Stored as string; encrypted sensitive values prefixed with "enc:"
+  label String?          // Human-readable label for UI
+  group String?          // "email" | "whatsapp" | "general"
+  isSecret Boolean @default(false) @map("is_secret") // Mask in UI
+
+  updatedBy String?  @map("updated_by") // User ID who last changed it
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([group])
+  @@map("system_config")
+}
+
+// ========================================
 // AUDIT LOG
 // ========================================
 

@@ -4,7 +4,9 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { AuditService } from '../audit/audit.service';
-import { CreateBookingDto } from './dto/create-booking.dto';
+import { MailService }       from '../mail/mail.service';
+import { WhatsAppService }   from '../whatsapp/whatsapp.service';
+import { CreateBookingDto }  from './dto/create-booking.dto';
 
 // ─── Status mapping (schema → frontend) ─────────────────────────
 function mapStatus(status: string, approvalStatus: string): string {
@@ -54,6 +56,8 @@ export class BookingsService {
     private prisma: PrismaService,
     private notifications: NotificationsGateway,
     private audit: AuditService,
+    private mail:      MailService,
+    private whatsapp:  WhatsAppService,
   ) {}
 
   async findAll(query: {
@@ -191,6 +195,65 @@ export class BookingsService {
       bookingId: booking.id,
     });
 
+    // Email: confirm receipt to requester
+    if (user.email) {
+      this.mail.sendBookingConfirmation({
+        recipientName:  user.name,
+        recipientEmail: user.email,
+        bookingId:      booking.id,
+        roomName:       room.roomName,
+        date:           start.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+        startTime:      start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+        endTime:        end.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+        title:          booking.title,
+        status:         'Pending Approval',
+      });
+    }
+
+    // Email + WhatsApp: notify admins with approval request
+    const admins = await this.prisma.user.findMany({
+      where: { role: { in: ['ADMIN', 'CORPORATE_ADMIN', 'SUPER_ADMIN'] as any }, isActive: true },
+      select: { id: true, name: true, email: true, whatsappNumber: true, notifyEmail: true, notifyWhatsapp: true },
+    });
+    const dateLabel      = start.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const startTimeLabel = start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    for (const admin of admins) {
+      if (admin.notifyEmail && admin.email) {
+        this.mail.sendBookingApprovalRequest({
+          recipientName:  admin.name,
+          recipientEmail: admin.email,
+          bookingId:      booking.id,
+          roomName:       room.roomName,
+          date:           dateLabel,
+          startTime:      startTimeLabel,
+          title:          booking.title,
+          requesterName:  user.name,
+        });
+      }
+      if (admin.notifyWhatsapp && admin.whatsappNumber) {
+        this.whatsapp.sendBookingConfirmation({
+          phone:     admin.whatsappNumber,
+          name:      admin.name,
+          roomName:  room.roomName,
+          date:      dateLabel,
+          startTime: startTimeLabel,
+          title:     `[Approval Needed] ${booking.title} by ${user.name}`,
+        });
+      }
+    }
+
+    // WhatsApp to requester (if enabled)
+    if (user.notifyWhatsapp && user.whatsappNumber) {
+      this.whatsapp.sendBookingConfirmation({
+        phone:     user.whatsappNumber,
+        name:      user.name,
+        roomName:  room.roomName,
+        date:      dateLabel,
+        startTime: startTimeLabel,
+        title:     booking.title,
+      });
+    }
+
     return transformBooking(booking);
   }
 
@@ -232,6 +295,21 @@ export class BookingsService {
       bookingId: id,
     });
 
+    // Email: status update to requester
+    if (booking.createdBy?.email) {
+      const s = booking.startTime as Date;
+      this.mail.sendBookingStatusUpdate({
+        recipientName:  booking.createdBy.name,
+        recipientEmail: booking.createdBy.email,
+        bookingId:      id,
+        roomName:       booking.room.roomName,
+        date:           s.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+        startTime:      s.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+        title:          booking.title,
+        approved:       true,
+      });
+    }
+
     return transformBooking(updated);
   }
 
@@ -269,6 +347,22 @@ export class BookingsService {
         : `Your booking for ${booking.room.roomName} was rejected.`,
       bookingId: id,
     });
+
+    // Email: status update to requester
+    if (booking.createdBy?.email) {
+      const s = booking.startTime as Date;
+      this.mail.sendBookingStatusUpdate({
+        recipientName:  booking.createdBy.name,
+        recipientEmail: booking.createdBy.email,
+        bookingId:      id,
+        roomName:       booking.room.roomName,
+        date:           s.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+        startTime:      s.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+        title:          booking.title,
+        approved:       false,
+        reason,
+      });
+    }
 
     return transformBooking(updated);
   }

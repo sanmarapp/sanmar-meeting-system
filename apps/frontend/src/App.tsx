@@ -13,7 +13,8 @@ import { SiteVisitDetailPage } from './pages/SiteVisitDetailPage';
 import { NewSiteVisitPage }   from './pages/NewSiteVisitPage';
 import { ApprovalsPage }      from './pages/ApprovalsPage';
 import { UsersPage }          from './pages/UsersPage';
-import { SettingsPage }       from './pages/SettingsPage';
+import { SettingsPage }                from './pages/SettingsPage';
+import { NotificationSettingsPage }   from './pages/NotificationSettingsPage';
 
 // ─── Route guard ───────────────────────────────────────────────
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -65,6 +66,7 @@ function App() {
       <Route path="/users"           element={<PrivateRoute><UsersPage /></PrivateRoute>} />
       <Route path="/approvals"       element={<PrivateRoute><ApprovalsPage /></PrivateRoute>} />
       <Route path="/settings"        element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
+      <Route path="/settings/notifications" element={<PrivateRoute><NotificationSettingsPage /></PrivateRoute>} />
 
       {/* Default redirects */}
       <Route path="/"  element={<Navigate to="/dashboard" replace />} />

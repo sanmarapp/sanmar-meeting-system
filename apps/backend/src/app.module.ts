@@ -9,6 +9,10 @@ import { BookingsModule } from './bookings/bookings.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { SiteVisitsModule } from './site-visits/site-visits.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { MailModule }         from './mail/mail.module';
+import { AuditModule }        from './audit/audit.module';
+import { SystemConfigModule } from './system-config/system-config.module';
+import { WhatsAppModule }     from './whatsapp/whatsapp.module';
 
 @Module({
   imports: [
@@ -20,8 +24,12 @@ import { NotificationsModule } from './notifications/notifications.module';
     RoomsModule,
     SiteVisitsModule,
     NotificationsModule,
+    MailModule,
+    AuditModule,
+    SystemConfigModule,
+    WhatsAppModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers:   [AppService],
 })
 export class AppModule {}
