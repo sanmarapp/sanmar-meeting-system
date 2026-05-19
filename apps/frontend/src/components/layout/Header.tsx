@@ -1,5 +1,9 @@
 import { type ReactNode, useRef, useEffect, useState } from 'react';
-import { Bell, MapPin, Menu, X, CheckCircle2, CalendarDays, XCircle, ArrowLeft } from 'lucide-react';
+import {
+  Bell, MapPin, Menu, X,
+  CheckCircle2, CalendarDays, XCircle, ArrowLeft,
+  Clock,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '../../lib/cn';
 import { useAuth } from '../../contexts/AuthContext';
@@ -8,18 +12,19 @@ import { useNotifications } from '../../contexts/NotificationContext';
 
 // ─── Types ─────────────────────────────────────────────────────
 interface HeaderProps {
-  title:     string;
-  subtitle?: string;
-  action?:   ReactNode;
-  backHref?: string;
+  title:      string;
+  subtitle?:  string;
+  action?:    ReactNode;
+  backHref?:  string;
   className?: string;
+  badge?:     ReactNode;  // optional badge next to title (e.g. count)
 }
 
-// ─── Component ─────────────────────────────────────────────────
-export function Header({ title, subtitle, action, backHref, className }: HeaderProps) {
-  const { user }          = useAuth();
-  const { toggle, isOpen } = useSidebar();
-  const navigate           = useNavigate();
+// ─── Header ────────────────────────────────────────────────────
+export function Header({ title, subtitle, action, backHref, className, badge }: HeaderProps) {
+  const { user }            = useAuth();
+  const { toggle, isOpen }  = useSidebar();
+  const navigate            = useNavigate();
   const { notifications, unreadCount, markAllRead } = useNotifications();
 
   const location = user?.locations?.[0]?.name ?? 'Dhaka HQ';
@@ -27,7 +32,7 @@ export function Header({ title, subtitle, action, backHref, className }: HeaderP
   const [bellOpen, setBellOpen] = useState(false);
   const bellRef = useRef<HTMLDivElement>(null);
 
-  // Close bell dropdown on outside click
+  // Close notification panel on outside click
   useEffect(() => {
     function handler(e: MouseEvent) {
       if (bellRef.current && !bellRef.current.contains(e.target as Node)) {
@@ -46,50 +51,63 @@ export function Header({ title, subtitle, action, backHref, className }: HeaderP
   return (
     <header
       className={cn(
-        'sticky top-0 z-30 h-[54px] bg-white border-b border-neutral-200',
-        'flex items-center justify-between px-4 lg:px-6 shrink-0 gap-3',
+        'sticky top-0 z-50 shrink-0',
+        'bg-white/95 backdrop-blur-sm',
+        'border-b border-neutral-150',
+        'flex items-center justify-between px-5 gap-3',
         className,
       )}
+      style={{ height: 'var(--header-h)' }}
     >
-      {/* Left — hamburger (mobile) + back button + title */}
-      <div className="flex items-center gap-2 min-w-0">
-        {/* Hamburger — mobile only, hidden when backHref present */}
+      {/* ── Left ── */}
+      <div className="flex items-center gap-2.5 min-w-0">
+        {/* Mobile hamburger */}
         {!backHref && (
           <button
             onClick={toggle}
-            className="lg:hidden flex items-center justify-center w-8 h-8 rounded-lg border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-500 transition-colors shrink-0"
+            className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 bg-white hover:bg-neutral-75 text-neutral-500 transition-colors shrink-0"
             aria-label={isOpen ? 'Close menu' : 'Open menu'}
           >
-            {isOpen ? <X size={15} strokeWidth={2} /> : <Menu size={15} strokeWidth={2} />}
+            {isOpen
+              ? <X    size={14} strokeWidth={2} />
+              : <Menu size={14} strokeWidth={2} />
+            }
           </button>
         )}
 
-        {/* Back button — detail pages */}
+        {/* Back button */}
         {backHref && (
           <button
             onClick={() => navigate(backHref)}
-            className="flex items-center justify-center w-8 h-8 rounded-lg border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-500 transition-colors shrink-0"
+            className="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 bg-white hover:bg-neutral-75 text-neutral-500 transition-colors shrink-0"
             aria-label="Go back"
           >
-            <ArrowLeft size={15} strokeWidth={2} />
+            <ArrowLeft size={14} strokeWidth={2} />
           </button>
         )}
 
-        <div className="min-w-0">
-          <h1 className="font-display text-xl font-semibold text-neutral-900 leading-tight truncate">
-            {title}
-          </h1>
-          {subtitle && (
-            <p className="text-xs text-neutral-500 leading-none mt-0.5 truncate">{subtitle}</p>
-          )}
+        {/* Title block */}
+        <div className="min-w-0 flex items-center gap-2">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h1 className="text-[15px] font-normal text-neutral-900 leading-none tracking-tight truncate">
+                {title}
+              </h1>
+              {badge}
+            </div>
+            {subtitle && (
+              <p className="text-xs text-neutral-400 leading-none mt-1 truncate">{subtitle}</p>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Right — location + bell + CTA */}
-      <div className="flex items-center gap-2 shrink-0">
-        {/* Location pill — hidden on very small screens */}
-        <div className="hidden sm:flex items-center gap-1.5 bg-neutral-100 border border-neutral-200 rounded-lg px-2.5 py-1.5 text-xs font-normal text-neutral-600">
-          <MapPin size={11} strokeWidth={2} className="text-neutral-400" />
+      {/* ── Right ── */}
+      <div className="flex items-center gap-1.5 shrink-0">
+
+        {/* Location pill */}
+        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-normal text-neutral-500 bg-neutral-75 border border-neutral-150 select-none">
+          <MapPin size={10} strokeWidth={2.5} className="text-neutral-400" />
           {location}
         </div>
 
@@ -97,12 +115,21 @@ export function Header({ title, subtitle, action, backHref, className }: HeaderP
         <div className="relative" ref={bellRef}>
           <button
             onClick={handleBellClick}
-            className="relative w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-500 transition-colors"
+            className={cn(
+              'relative w-8 h-8 flex items-center justify-center rounded-lg border transition-colors',
+              bellOpen
+                ? 'bg-neutral-100 border-neutral-200 text-neutral-700'
+                : 'bg-white border-neutral-200 text-neutral-500 hover:bg-neutral-75 hover:text-neutral-700',
+            )}
             aria-label="Notifications"
+            aria-expanded={bellOpen}
           >
             <Bell size={14} strokeWidth={1.75} />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 min-w-[14px] h-[14px] rounded-full bg-danger text-white text-[9px] font-normal flex items-center justify-center px-0.5 leading-none border border-white">
+              <span
+                className="absolute top-1 right-1 min-w-[14px] h-[14px] rounded-full text-white flex items-center justify-center px-0.5 leading-none border-[1.5px] border-white text-[9px] font-normal"
+                style={{ background: '#DC2626' }}
+              >
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -110,22 +137,37 @@ export function Header({ title, subtitle, action, backHref, className }: HeaderP
 
           {/* Notification dropdown */}
           {bellOpen && (
-            <div className="absolute right-0 top-[calc(100%+6px)] w-[320px] bg-white border border-neutral-200 rounded-xl shadow-lg z-50 overflow-hidden">
+            <div
+              className="absolute right-0 top-[calc(100%+6px)] w-[340px] bg-white rounded-xl z-60 overflow-hidden animate-scale-in"
+              style={{ boxShadow: 'var(--shadow-dropdown)' }}
+            >
+              {/* Header */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
-                <p className="text-sm font-normal text-neutral-800">Notifications</p>
+                <div>
+                  <p className="text-sm font-normal text-neutral-900">Notifications</p>
+                  {unreadCount > 0 && (
+                    <p className="text-xs text-neutral-400 mt-0.5">{unreadCount} unread</p>
+                  )}
+                </div>
                 {notifications.length > 0 && (
-                  <button onClick={markAllRead} className="text-xs text-primary-500 hover:text-primary-700 font-normal transition-colors">
+                  <button
+                    onClick={markAllRead}
+                    className="text-xs text-primary-500 hover:text-primary-700 transition-colors px-2 py-1 rounded-md hover:bg-primary-50"
+                  >
                     Mark all read
                   </button>
                 )}
               </div>
 
-              <div className="max-h-[360px] overflow-y-auto">
+              {/* List */}
+              <div className="max-h-[380px] overflow-y-auto">
                 {notifications.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
-                    <Bell size={24} strokeWidth={1.25} className="text-neutral-200 mb-2" />
-                    <p className="text-sm text-neutral-400">No notifications yet</p>
-                    <p className="text-xs text-neutral-300 mt-0.5">Booking updates will appear here.</p>
+                  <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                    <div className="w-10 h-10 rounded-xl bg-neutral-75 flex items-center justify-center mb-3">
+                      <Bell size={18} strokeWidth={1.25} className="text-neutral-300" />
+                    </div>
+                    <p className="text-sm text-neutral-500 font-normal">No notifications</p>
+                    <p className="text-xs text-neutral-400 mt-0.5">Booking updates will appear here</p>
                   </div>
                 ) : (
                   notifications.map(n => (
@@ -137,49 +179,63 @@ export function Header({ title, subtitle, action, backHref, className }: HeaderP
           )}
         </div>
 
+        {/* Page CTA */}
         {action}
       </div>
     </header>
   );
 }
 
-// ─── Notification item ─────────────────────────────────────────
-function NotificationItem({ notification: n }: { notification: { id: string; type: string; title: string; body: string; read: boolean; createdAt: string } }) {
-  const iconMap: Record<string, ReactNode> = {
-    approved:  <CheckCircle2 size={14} strokeWidth={1.75} className="text-success" />,
-    rejected:  <XCircle size={14} strokeWidth={1.75} className="text-danger" />,
-    pending:   <CalendarDays size={14} strokeWidth={1.75} className="text-warning" />,
-    cancelled: <XCircle size={14} strokeWidth={1.75} className="text-neutral-400" />,
+// ─── NotificationItem ──────────────────────────────────────────
+type NotificationType = { id: string; type: string; title: string; body: string; read: boolean; createdAt: string };
+
+function NotificationItem({ notification: n }: { notification: NotificationType }) {
+  const iconConfig: Record<string, { icon: React.ElementType; color: string; bg: string }> = {
+    approved:  { icon: CheckCircle2,  color: 'text-success',         bg: 'bg-success-50'  },
+    rejected:  { icon: XCircle,       color: 'text-danger-500',      bg: 'bg-danger-50'   },
+    pending:   { icon: CalendarDays,  color: 'text-warning-500',     bg: 'bg-warning-50'  },
+    cancelled: { icon: XCircle,       color: 'text-neutral-400',     bg: 'bg-neutral-100' },
   };
+
+  const cfg = iconConfig[n.type] ?? { icon: Bell, color: 'text-neutral-400', bg: 'bg-neutral-100' };
+  const IconComp = cfg.icon;
 
   const timeAgo = (() => {
     const diff = Date.now() - new Date(n.createdAt).getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 1)  return 'just now';
+    if (mins < 1)  return 'Just now';
     if (mins < 60) return `${mins}m ago`;
     const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
+    if (hrs < 24)  return `${hrs}h ago`;
     return `${Math.floor(hrs / 24)}d ago`;
   })();
 
   return (
     <div
       className={cn(
-        'flex items-start gap-3 px-4 py-3 border-b border-neutral-50 last:border-0',
-        !n.read && 'bg-primary-50/40',
+        'flex items-start gap-3 px-4 py-3.5 transition-colors',
+        'border-b border-neutral-50 last:border-0',
+        !n.read ? 'bg-primary-25' : 'hover:bg-neutral-50',
       )}
     >
-      <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-        style={{ background: 'rgba(0,0,0,0.04)' }}>
-        {iconMap[n.type] ?? <Bell size={14} strokeWidth={1.75} className="text-neutral-400" />}
+      {/* Icon */}
+      <div className={cn('w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5', cfg.bg)}>
+        <IconComp size={14} strokeWidth={1.75} className={cfg.color} />
       </div>
+
+      {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-normal text-neutral-800 leading-snug">{n.title}</p>
-        <p className="text-xs text-neutral-500 mt-0.5 leading-relaxed">{n.body}</p>
-        <p className="text-[10px] text-neutral-300 mt-1">{timeAgo}</p>
+        <p className="text-sm text-neutral-800 leading-snug">{n.title}</p>
+        <p className="text-xs text-neutral-500 mt-0.5 leading-relaxed line-clamp-2">{n.body}</p>
+        <div className="flex items-center gap-1 mt-1.5">
+          <Clock size={9} strokeWidth={2} className="text-neutral-300" />
+          <p className="text-[10px] text-neutral-400">{timeAgo}</p>
+        </div>
       </div>
+
+      {/* Unread dot */}
       {!n.read && (
-        <div className="w-1.5 h-1.5 rounded-full bg-primary-500 shrink-0 mt-1.5" />
+        <div className="w-1.5 h-1.5 rounded-full bg-primary-500 shrink-0 mt-1.5 animate-pulse-dot" />
       )}
     </div>
   );

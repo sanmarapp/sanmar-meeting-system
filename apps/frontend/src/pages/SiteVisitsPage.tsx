@@ -3,36 +3,29 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   Plus, Search, CalendarDays, MapPin, ChevronRight,
-  ChevronLeft, User, X, SlidersHorizontal,
+  ChevronLeft, User, X,
 } from 'lucide-react';
 import { siteVisitService, type SiteVisit, type VisitStatus } from '../services/siteVisitService';
 import { AppShell } from '../components/layout/AppShell';
 import { Header } from '../components/layout/Header';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { Badge } from '../components/ui/Badge';
+import { Badge, visitStatusVariant, visitStatusLabel } from '../components/ui/Badge';
 import { SkeletonTable } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
-import { visitStatusVariant } from '../components/ui/Badge';
+import { cn } from '../lib/cn';
 
 // ─── Config ────────────────────────────────────────────────────
 type FilterStatus = VisitStatus | 'ALL';
 
 const STATUS_TABS: { label: string; value: FilterStatus }[] = [
-  { label: 'All',       value: 'ALL' },
-  { label: 'Scheduled', value: 'SCHEDULED' },
-  { label: 'Completed', value: 'COMPLETED' },
-  { label: 'Cancelled', value: 'CANCELLED' },
-  { label: 'No Show',   value: 'NO_SHOW' },
+  { label: 'All',         value: 'ALL'         },
+  { label: 'Scheduled',   value: 'SCHEDULED'   },
+  { label: 'Completed',   value: 'COMPLETED'   },
+  { label: 'Rescheduled', value: 'RESCHEDULED' },
+  { label: 'Cancelled',   value: 'CANCELLED'   },
+  { label: 'No Show',     value: 'NO_SHOW'     },
 ];
-
-const VISIT_STATUS_LABEL: Record<VisitStatus, string> = {
-  SCHEDULED:   'Scheduled',
-  COMPLETED:   'Completed',
-  CANCELLED:   'Cancelled',
-  NO_SHOW:     'No Show',
-  RESCHEDULED: 'Rescheduled',
-};
 
 const PAGE_SIZE = 15;
 
@@ -42,13 +35,11 @@ function fmtDate(iso: string) {
     day: 'numeric', month: 'short', year: 'numeric',
   });
 }
-
-function fmtTime(timeStr: string) {
-  // visitTime may be "HH:MM" or ISO
-  if (timeStr.includes('T')) {
-    return new Date(timeStr).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+function fmtTime(t: string) {
+  if (t?.includes('T')) {
+    return new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
   }
-  return timeStr.slice(0, 5);
+  return t?.slice(0, 5) ?? '';
 }
 
 // ─── Component ─────────────────────────────────────────────────
@@ -71,14 +62,13 @@ export function SiteVisitsPage() {
     ...(date                   && { date }),
   }), [statusFilter, search, date, page]);
 
-  // Note: siteVisitService.list returns array — we handle pagination client-side
   const { data: allVisits = [], isLoading, isFetching } = useQuery({
     queryKey: ['site-visits', queryParams],
     queryFn:  () => siteVisitService.list(queryParams),
     placeholderData: (prev: any) => prev,
   });
 
-  const visits     = allVisits;
+  const visits     = allVisits as SiteVisit[];
   const total      = visits.length;
   const hasFilters = !!(search || date);
 
@@ -99,38 +89,37 @@ export function SiteVisitsPage() {
         }
       />
 
-      <div className="flex-1 p-6 space-y-4 animate-fade-in">
+      <div className="flex-1 px-5 py-5 space-y-4 animate-fade-in">
 
-        {/* ── Filters ── */}
-        <div className="bg-white border border-neutral-200 rounded-xl px-4 pt-3 pb-4 shadow-xs space-y-3">
+        {/* ── Filter bar ── */}
+        <div className="bg-white border border-neutral-150 rounded-xl shadow-xs">
           {/* Status tabs */}
-          <div className="flex items-center gap-0.5 flex-wrap">
+          <div
+            className="flex items-center gap-0.5 px-3 pt-2 pb-0 overflow-x-auto scrollbar-hidden"
+            style={{ borderBottom: '1px solid var(--border)' }}
+          >
             {STATUS_TABS.map(({ label, value }) => {
               const active = statusFilter === value;
               return (
                 <button
                   key={value}
                   onClick={() => handleStatus(value)}
-                  className="text-sm px-3 py-1.5 rounded-lg font-normal transition-all duration-100 select-none"
-                  style={{
-                    background: active ? 'rgba(130,107,82,0.1)' : 'transparent',
-                    color: active ? '#826B52' : 'rgba(0,0,0,0.5)',
-                  }}
-                  onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.04)'; }}
-                  onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                  className={cn(
+                    'relative shrink-0 px-3 py-2 text-sm font-normal transition-colors duration-100 select-none',
+                    'rounded-t-lg border-b-2 -mb-px',
+                    active
+                      ? 'text-[#826B52] border-[#C9A97A]'
+                      : 'text-neutral-500 border-transparent hover:text-neutral-700 hover:border-neutral-200',
+                  )}
                 >
                   {label}
                 </button>
               );
             })}
-            <div className="ml-auto flex items-center gap-1 text-xs text-neutral-400">
-              <SlidersHorizontal size={12} strokeWidth={1.75} />
-              <span>Filters</span>
-            </div>
           </div>
 
           {/* Search + date */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 px-3 py-3">
             <div className="flex-1">
               <Input
                 placeholder="Search by client, site or booked by…"
@@ -141,11 +130,20 @@ export function SiteVisitsPage() {
               />
             </div>
             <div className="w-44 shrink-0">
-              <Input type="date" value={date} onChange={e => { setDate(e.target.value); setPage(1); }} fullWidth />
+              <Input
+                type="date"
+                value={date}
+                onChange={e => { setDate(e.target.value); setPage(1); }}
+                fullWidth
+              />
             </div>
             {hasFilters && (
-              <button onClick={clearFilters} className="flex items-center gap-1 text-xs text-neutral-400 hover:text-neutral-700 whitespace-nowrap transition-colors">
-                <X size={12} strokeWidth={2} /> Clear
+              <button
+                onClick={clearFilters}
+                className="flex items-center gap-1 text-xs text-neutral-400 hover:text-neutral-700 whitespace-nowrap transition-colors shrink-0"
+              >
+                <X size={12} strokeWidth={2} />
+                Clear
               </button>
             )}
           </div>
@@ -153,19 +151,19 @@ export function SiteVisitsPage() {
 
         {/* ── Table ── */}
         <div
-          className="bg-white border border-neutral-200 rounded-xl shadow-xs overflow-hidden"
-          style={{ opacity: isFetching && !isLoading ? 0.7 : 1, transition: 'opacity 150ms' }}
+          className="bg-white border border-neutral-150 rounded-xl shadow-xs overflow-hidden"
+          style={{ opacity: isFetching && !isLoading ? 0.75 : 1, transition: 'opacity 150ms' }}
         >
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="s-table">
               <thead>
-                <tr style={{ borderBottom: '1px solid #F0EDE9' }}>
-                  <th className="px-5 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">Client</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">Site</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider whitespace-nowrap">Date &amp; Time</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">Booked By</th>
-                  <th className="px-4 py-3 text-left text-[11px] font-normal text-neutral-400 uppercase tracking-wider">Status</th>
-                  <th className="px-4 py-3 w-8" aria-hidden />
+                <tr>
+                  <th>Client</th>
+                  <th>Site / Project</th>
+                  <th>Date &amp; Time</th>
+                  <th>Booked By</th>
+                  <th>Status</th>
+                  <th className="w-8" aria-hidden />
                 </tr>
               </thead>
               <tbody>
@@ -180,16 +178,20 @@ export function SiteVisitsPage() {
                         hint={hasFilters ? 'Try adjusting your search or date filter.' : undefined}
                         action={
                           hasFilters
-                            ? { label: 'Clear filters', onClick: clearFilters }
-                            : { label: 'Schedule Visit', onClick: () => navigate('/site-visits/new') }
+                            ? { label: 'Clear filters',   onClick: clearFilters }
+                            : { label: 'Schedule Visit',  onClick: () => navigate('/site-visits/new') }
                         }
                         className="py-0"
                       />
                     </td>
                   </tr>
                 ) : (
-                  visits.map((v: SiteVisit) => (
-                    <VisitRow key={v.id} visit={v} onClick={() => navigate(`/site-visits/${v.id}`)} />
+                  visits.map((v) => (
+                    <VisitTableRow
+                      key={v.id}
+                      visit={v}
+                      onClick={() => navigate(`/site-visits/${v.id}`)}
+                    />
                   ))
                 )}
               </tbody>
@@ -201,30 +203,30 @@ export function SiteVisitsPage() {
   );
 }
 
-// ─── Visit row ─────────────────────────────────────────────────
-function VisitRow({ visit: v, onClick }: { visit: SiteVisit; onClick: () => void }) {
+// ─── Visit table row ───────────────────────────────────────────
+function VisitTableRow({ visit: v, onClick }: { visit: SiteVisit; onClick: () => void }) {
   return (
-    <tr
-      className="cursor-pointer transition-colors"
-      style={{ borderBottom: '1px solid #F5F3F0' }}
-      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#FAFAF9')}
-      onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}
-      onClick={onClick}
-    >
+    <tr className="cursor-pointer" onClick={onClick}>
       {/* Client */}
       <td className="px-5 py-3.5">
         <p className="font-normal text-neutral-900">{v.client.name}</p>
-        {v.client.phone && <p className="text-xs text-neutral-400 mt-0.5">{v.client.phone}</p>}
+        {v.client.phone && (
+          <p className="text-xs text-neutral-400 mt-0.5">{v.client.phone}</p>
+        )}
       </td>
 
-      {/* Site */}
+      {/* Site / project */}
       <td className="px-4 py-3.5">
         <div className="flex items-center gap-1.5 text-neutral-700">
           <MapPin size={13} strokeWidth={1.75} className="text-neutral-300 shrink-0" />
-          <span className="truncate max-w-[140px]">{v.site.name}</span>
+          <span className="truncate max-w-[160px]">
+            {v.site?.name ?? v.project?.name ?? '—'}
+          </span>
         </div>
-        {v.site.address && (
-          <p className="text-xs text-neutral-400 mt-0.5 pl-[21px] truncate max-w-[140px]">{v.site.address}</p>
+        {(v.site?.address || v.project?.location) && (
+          <p className="text-xs text-neutral-400 mt-0.5 pl-[21px] truncate max-w-[160px]">
+            {v.site?.address ?? v.project?.location ?? ''}
+          </p>
         )}
       </td>
 
@@ -234,27 +236,29 @@ function VisitRow({ visit: v, onClick }: { visit: SiteVisit; onClick: () => void
           <CalendarDays size={13} strokeWidth={1.75} className="text-neutral-300 shrink-0" />
           <span>{fmtDate(v.visitDate)}</span>
         </div>
-        <p className="text-xs text-neutral-400 mt-0.5 pl-[21px]">{fmtTime(v.visitTime)}</p>
+        {v.visitTime && (
+          <p className="text-xs text-neutral-400 mt-0.5 pl-[21px]">{fmtTime(v.visitTime)}</p>
+        )}
       </td>
 
       {/* Booked by */}
       <td className="px-4 py-3.5">
         <div className="flex items-center gap-1.5 text-neutral-700">
           <User size={13} strokeWidth={1.75} className="text-neutral-300 shrink-0" />
-          <span className="truncate max-w-[120px]">{v.bookedBy.name}</span>
+          <span className="truncate max-w-[120px]">{v.bookedBy?.name ?? '—'}</span>
         </div>
       </td>
 
       {/* Status */}
       <td className="px-4 py-3.5">
         <Badge variant={visitStatusVariant(v.status)}>
-          {VISIT_STATUS_LABEL[v.status] ?? v.status}
+          {visitStatusLabel(v.status)}
         </Badge>
       </td>
 
-      {/* Arrow */}
+      {/* Chevron */}
       <td className="px-3 py-3.5">
-        <ChevronRight size={15} strokeWidth={1.75} className="text-neutral-300" />
+        <ChevronRight size={14} strokeWidth={1.75} className="text-neutral-300" />
       </td>
     </tr>
   );
