@@ -86,8 +86,8 @@ export class ReportsService {
       .sort((a, b) => b.bookings - a.bookings);
 
     // By meeting type
-    const internal = bookings.filter(b => b.meetingType === 'internal').length;
-    const external = bookings.filter(b => b.meetingType === 'external').length;
+    const internal = bookings.filter(b => b.meetingType === 'INTERNAL').length;
+    const external = bookings.filter(b => b.meetingType === 'CLIENT').length;
 
     // Daily trend (last 30 days bucketed by day)
     const dailyMap = new Map<string, number>();
