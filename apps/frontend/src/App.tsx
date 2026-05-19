@@ -16,6 +16,8 @@ import { UsersPage }          from './pages/UsersPage';
 import { SettingsPage }                from './pages/SettingsPage';
 import { NotificationSettingsPage }   from './pages/NotificationSettingsPage';
 import { FairsPage }                  from './pages/FairsPage';
+import { AuditLogPage }               from './pages/AuditLogPage';
+import { ReportsPage }                from './pages/ReportsPage';
 
 // ─── Route guard ───────────────────────────────────────────────
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -68,7 +70,9 @@ function App() {
       <Route path="/approvals"       element={<PrivateRoute><ApprovalsPage /></PrivateRoute>} />
       <Route path="/settings"        element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
       <Route path="/settings/notifications" element={<PrivateRoute><NotificationSettingsPage /></PrivateRoute>} />
-      <Route path="/fairs" element={<PrivateRoute><FairsPage /></PrivateRoute>} />
+      <Route path="/fairs"      element={<PrivateRoute><FairsPage /></PrivateRoute>} />
+      <Route path="/audit-logs" element={<PrivateRoute><AuditLogPage /></PrivateRoute>} />
+      <Route path="/reports"    element={<PrivateRoute><ReportsPage /></PrivateRoute>} />
 
       {/* Default redirects */}
       <Route path="/"  element={<Navigate to="/dashboard" replace />} />

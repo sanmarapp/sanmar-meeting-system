@@ -17,6 +17,17 @@ export const CONFIG_KEYS = {
   WA_API_URL:     'wa_api_url',
   WA_SENDER_ID:   'wa_sender_id',
   WA_ENABLED:     'wa_enabled',
+
+  // Segment toggles (Super Admin)
+  SEG_BOOKINGS:       'seg_bookings',       // 'true'|'false'
+  SEG_EXTERNAL_BOOKS: 'seg_external_books', // External client meetings
+  SEG_SITE_VISITS:    'seg_site_visits',
+  SEG_FAIRS:          'seg_fairs',
+
+  // Approval routing (Super Admin)
+  APPR_BOARD_REQUIRED:    'appr_board_required',    // 'true'|'false'
+  APPR_DURATION_MINS:     'appr_duration_mins',     // meetings above N mins require approval
+  APPR_EXTERNAL_REQUIRED: 'appr_external_required', // 'true'|'false'
 } as const;
 
 export type ConfigKey = typeof CONFIG_KEYS[keyof typeof CONFIG_KEYS];
@@ -114,6 +125,37 @@ export class SystemConfigService {
       apiUrl:   apiUrl   ?? this.env.get('WA_API_URL', 'https://app.walinko.com/api/v1'),
       senderId: senderId ?? this.env.get('WA_SENDER_ID', ''),
       enabled:  (enabled ?? 'false') === 'true',
+    };
+  }
+
+  // ── Get segment flags as object ──────────────────────────────
+  async getSegments() {
+    const keys = [
+      CONFIG_KEYS.SEG_BOOKINGS,
+      CONFIG_KEYS.SEG_EXTERNAL_BOOKS,
+      CONFIG_KEYS.SEG_SITE_VISITS,
+      CONFIG_KEYS.SEG_FAIRS,
+    ];
+    const values = await Promise.all(keys.map(k => this.get(k)));
+    return {
+      bookings:        (values[0] ?? 'true') === 'true',
+      externalBookings:(values[1] ?? 'true') === 'true',
+      siteVisits:      (values[2] ?? 'true') === 'true',
+      fairs:           (values[3] ?? 'true') === 'true',
+    };
+  }
+
+  // ── Get approval routing config as object ────────────────────
+  async getApprovalConfig() {
+    const [boardReq, durationMins, externalReq] = await Promise.all([
+      this.get(CONFIG_KEYS.APPR_BOARD_REQUIRED),
+      this.get(CONFIG_KEYS.APPR_DURATION_MINS),
+      this.get(CONFIG_KEYS.APPR_EXTERNAL_REQUIRED),
+    ]);
+    return {
+      boardRoomRequired:    (boardReq    ?? 'true') === 'true',
+      durationThresholdMins: Number(durationMins ?? '120'),
+      externalMeetingRequired: (externalReq ?? 'false') === 'true',
     };
   }
 

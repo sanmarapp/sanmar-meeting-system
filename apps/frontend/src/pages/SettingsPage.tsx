@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
-  User, Mail, Briefcase, Building2, Shield,
-  Bell, MessageSquare, KeyRound, CheckCircle2, Eye, EyeOff,
+  Mail, Briefcase, Building2, Shield,
+  MessageSquare, KeyRound, CheckCircle2, Eye, EyeOff,
+  ToggleLeft, ToggleRight, SlidersHorizontal, ClipboardList,
 } from 'lucide-react';
 import { authService } from '../services/authService';
+import { systemConfigService, type SegmentFlags, type ApprovalConfig } from '../services/auditService';
 import { AppShell } from '../components/layout/AppShell';
 import { Header } from '../components/layout/Header';
 import { Button } from '../components/ui/Button';
@@ -231,6 +233,14 @@ export function SettingsPage() {
           </form>
         </Card>
 
+        {/* ── Super Admin panels ── */}
+        {(user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN') && (
+          <>
+            <SegmentPanel />
+            <ApprovalRoutingPanel />
+          </>
+        )}
+
         {/* ── Session card ── */}
         <Card padding="sm">
           <div className="flex items-center justify-between">
@@ -254,6 +264,203 @@ export function SettingsPage() {
 
       </div>
     </AppShell>
+  );
+}
+
+// ── Segment Toggle Panel ────────────────────────────────────────────────────────
+
+function SegmentPanel() {
+  const qc = useQueryClient();
+  const { data: segments, isLoading } = useQuery<SegmentFlags>({
+    queryKey: ['segments'],
+    queryFn:  () => systemConfigService.getSegments(),
+  });
+
+  const [local, setLocal] = useState<SegmentFlags | null>(null);
+  const current = local ?? segments;
+
+  const saveMutation = useMutation({
+    mutationFn: () => systemConfigService.saveEntries([
+      { key: 'seg_bookings',       value: String(current!.bookings) },
+      { key: 'seg_external_books', value: String(current!.externalBookings) },
+      { key: 'seg_site_visits',    value: String(current!.siteVisits) },
+      { key: 'seg_fairs',          value: String(current!.fairs) },
+    ]),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['segments'] });
+      setLocal(null);
+      toast.success('Segment settings saved');
+    },
+    onError: () => toast.error('Failed to save segment settings'),
+  });
+
+  const toggle = (key: keyof SegmentFlags) => {
+    setLocal(prev => ({ ...(prev ?? segments!), [key]: !(prev ?? segments!)[key] }));
+  };
+
+  const isDirty = local !== null;
+
+  const rows: { key: keyof SegmentFlags; label: string; hint: string }[] = [
+    { key: 'bookings',         label: 'Meeting Room Bookings',   hint: 'Allow staff to create new room bookings' },
+    { key: 'externalBookings', label: 'External Client Meetings', hint: 'Allow bookings for external / client meetings' },
+    { key: 'siteVisits',       label: 'Site Visits',             hint: 'Allow new site visit scheduling' },
+    { key: 'fairs',            label: 'Property Fairs',          hint: 'Allow fair creation and visitor registration' },
+  ];
+
+  return (
+    <Card>
+      <CardHeader
+        title="Segment Controls"
+        subtitle="Enable or disable entire functional segments system-wide."
+        icon={<ToggleLeft size={15} strokeWidth={1.75} />}
+      />
+      {isLoading || !current ? (
+        <div className="space-y-3">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="h-12 rounded-lg bg-neutral-100 animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-1">
+          {rows.map(r => (
+            <div key={r.key} className="flex items-center justify-between gap-4 py-2.5 border-b border-neutral-100 last:border-0">
+              <div>
+                <p className="text-sm font-normal text-neutral-800">{r.label}</p>
+                <p className="text-xs text-neutral-400 mt-0.5">{r.hint}</p>
+              </div>
+              <button
+                onClick={() => toggle(r.key)}
+                className="flex items-center gap-2 transition-colors"
+                title={current[r.key] ? 'Click to disable' : 'Click to enable'}
+              >
+                <span className={`text-xs font-medium ${current[r.key] ? 'text-emerald-600' : 'text-neutral-400'}`}>
+                  {current[r.key] ? 'Enabled' : 'Disabled'}
+                </span>
+                {current[r.key]
+                  ? <ToggleRight size={22} className="text-emerald-500" />
+                  : <ToggleLeft  size={22} className="text-neutral-300" />}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      {isDirty && (
+        <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-neutral-100">
+          <Button variant="ghost" size="sm" onClick={() => setLocal(null)}>Revert</Button>
+          <Button variant="primary" size="sm" loading={saveMutation.isPending}
+            onClick={() => saveMutation.mutate()}>
+            Save Changes
+          </Button>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// ── Approval Routing Panel ──────────────────────────────────────────────────────
+
+function ApprovalRoutingPanel() {
+  const qc = useQueryClient();
+  const { data: config, isLoading } = useQuery<ApprovalConfig>({
+    queryKey: ['approval-config'],
+    queryFn:  () => systemConfigService.getApprovalConfig(),
+  });
+
+  const [local, setLocal] = useState<ApprovalConfig | null>(null);
+  const current = local ?? config;
+
+  const saveMutation = useMutation({
+    mutationFn: () => systemConfigService.saveEntries([
+      { key: 'appr_board_required',    value: String(current!.boardRoomRequired) },
+      { key: 'appr_duration_mins',     value: String(current!.durationThresholdMins) },
+      { key: 'appr_external_required', value: String(current!.externalMeetingRequired) },
+    ]),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['approval-config'] });
+      setLocal(null);
+      toast.success('Approval config saved');
+    },
+    onError: () => toast.error('Failed to save approval config'),
+  });
+
+  const setField = <K extends keyof ApprovalConfig>(key: K, val: ApprovalConfig[K]) =>
+    setLocal(prev => ({ ...(prev ?? config!), [key]: val }));
+
+  const isDirty = local !== null;
+
+  return (
+    <Card>
+      <CardHeader
+        title="Approval Routing"
+        subtitle="Configure which booking types trigger the approval workflow."
+        icon={<SlidersHorizontal size={15} strokeWidth={1.75} />}
+      />
+      {isLoading || !current ? (
+        <div className="space-y-3">
+          {[1,2,3].map(i => <div key={i} className="h-12 rounded-lg bg-neutral-100 animate-pulse" />)}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {/* Board room approval */}
+          <div className="flex items-center justify-between gap-4 py-2.5 border-b border-neutral-100">
+            <div>
+              <p className="text-sm font-normal text-neutral-800">Board Room requires approval</p>
+              <p className="text-xs text-neutral-400 mt-0.5">Board room bookings must be approved by HOD then Admin</p>
+            </div>
+            <button onClick={() => setField('boardRoomRequired', !current.boardRoomRequired)} className="flex items-center gap-2">
+              <span className={`text-xs font-medium ${current.boardRoomRequired ? 'text-emerald-600' : 'text-neutral-400'}`}>
+                {current.boardRoomRequired ? 'Required' : 'Not Required'}
+              </span>
+              {current.boardRoomRequired
+                ? <ToggleRight size={22} className="text-emerald-500" />
+                : <ToggleLeft  size={22} className="text-neutral-300" />}
+            </button>
+          </div>
+
+          {/* External meeting approval */}
+          <div className="flex items-center justify-between gap-4 py-2.5 border-b border-neutral-100">
+            <div>
+              <p className="text-sm font-normal text-neutral-800">External meetings require approval</p>
+              <p className="text-xs text-neutral-400 mt-0.5">All external / client meeting bookings require approval</p>
+            </div>
+            <button onClick={() => setField('externalMeetingRequired', !current.externalMeetingRequired)} className="flex items-center gap-2">
+              <span className={`text-xs font-medium ${current.externalMeetingRequired ? 'text-emerald-600' : 'text-neutral-400'}`}>
+                {current.externalMeetingRequired ? 'Required' : 'Not Required'}
+              </span>
+              {current.externalMeetingRequired
+                ? <ToggleRight size={22} className="text-emerald-500" />
+                : <ToggleLeft  size={22} className="text-neutral-300" />}
+            </button>
+          </div>
+
+          {/* Duration threshold */}
+          <div className="flex items-start justify-between gap-4 py-2.5">
+            <div>
+              <p className="text-sm font-normal text-neutral-800">Duration threshold</p>
+              <p className="text-xs text-neutral-400 mt-0.5">Meetings longer than this require approval</p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Input
+                type="number" min={30} max={480} step={15}
+                value={String(current.durationThresholdMins)}
+                onChange={e => setField('durationThresholdMins', +e.target.value)}
+                fullWidth={false}
+              />
+              <span className="text-sm text-neutral-500 whitespace-nowrap">minutes</span>
+            </div>
+          </div>
+        </div>
+      )}
+      {isDirty && (
+        <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-neutral-100">
+          <Button variant="ghost" size="sm" onClick={() => setLocal(null)}>Revert</Button>
+          <Button variant="primary" size="sm" loading={saveMutation.isPending}
+            onClick={() => saveMutation.mutate()}>
+            Save Changes
+          </Button>
+        </div>
+      )}
+    </Card>
   );
 }
 

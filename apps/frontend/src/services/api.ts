@@ -1,8 +1,14 @@
 import axios, { type AxiosError } from 'axios';
 
 // ─── Axios instance ────────────────────────────────────────────
+// In dev: Vite proxies /api → localhost:3000 (no env var needed)
+// In production (Vercel): VITE_API_URL must be set to the Railway backend URL
+const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined)
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api';
+
 export const api = axios.create({
-  baseURL: '/api',
+  baseURL: BASE_URL,
   timeout: 15_000,
   headers: { 'Content-Type': 'application/json' },
 });

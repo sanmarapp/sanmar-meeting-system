@@ -39,6 +39,16 @@ export class SystemConfigController {
     return this.svc.getWhatsAppConfig();
   }
 
+  @Get('segments')
+  getSegments() {
+    return this.svc.getSegments();
+  }
+
+  @Get('approval-config')
+  getApprovalConfig() {
+    return this.svc.getApprovalConfig();
+  }
+
   @Put()
   update(@Body() dto: UpdateConfigDto, @Request() req: any) {
     return this.svc.setBulk(dto.entries, req.user.id);

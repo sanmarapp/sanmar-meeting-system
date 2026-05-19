@@ -1,5 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { MailerService }      from '@nestjs-modules/mailer';
+import { SystemConfigService } from '../system-config/system-config.service';
+import * as nodemailer         from 'nodemailer';
+import * as handlebars         from 'handlebars';
+import * as fs                 from 'fs';
+import * as path               from 'path';
 
 // ─── Payload types ─────────────────────────────────────────────
 export interface BookingConfirmationPayload {
@@ -53,7 +57,7 @@ export interface SiteVisitTeamAlertPayload {
   recipientName:     string;
   recipientEmail:    string;
   clientName:        string;
-  clientType:        string;  // 'NEW_CLIENT' | 'EXISTING_CLIENT' | 'REFERRAL'
+  clientType:        string;
   siteName:          string;
   visitDate:         string;
   visitTime:         string;
@@ -67,7 +71,7 @@ export interface SiteVisitTeamAlertPayload {
 export class MailService {
   private readonly logger = new Logger(MailService.name);
 
-  constructor(private mailer: MailerService) {}
+  constructor(private readonly sysConfig: SystemConfigService) {}
 
   // ── Booking: confirmation to requester ──────────────────────
   async sendBookingConfirmation(p: BookingConfirmationPayload) {
@@ -133,13 +137,13 @@ export class MailService {
       `Site Visit Assigned: ${p.clientName} at ${p.siteName}`,
       'site-visit-team-alert',
       {
-        recipientName:    p.recipientName,
-        clientName:       p.clientName,
-        siteName:         p.siteName,
-        visitDate:        p.visitDate,
-        visitTime:        p.visitTime,
-        bookedByName:     p.bookedByName,
-        partySize:        p.partySize,
+        recipientName:     p.recipientName,
+        clientName:        p.clientName,
+        siteName:          p.siteName,
+        visitDate:         p.visitDate,
+        visitTime:         p.visitTime,
+        bookedByName:      p.bookedByName,
+        partySize:         p.partySize,
         assistanceContact: p.assistanceContact,
         isNew:      p.clientType === 'NEW_CLIENT',
         isReferral: p.clientType === 'REFERRAL',
@@ -149,13 +153,63 @@ export class MailService {
   }
 
   // ── Internal helper — fire-and-forget, never throws ─────────
-  private async send(to: string, subject: string, template: string, context: Record<string, any>) {
+  private async send(
+    to:       string,
+    subject:  string,
+    template: string,
+    context:  Record<string, any>,
+  ) {
     try {
-      await this.mailer.sendMail({ to, subject, template, context });
+      const smtp = await this.sysConfig.getSmtpConfig();
+
+      if (!smtp.enabled) {
+        this.logger.warn(`Email disabled — skipping send to ${to} [${template}]`);
+        return;
+      }
+
+      if (!smtp.host || !smtp.user) {
+        this.logger.warn(`SMTP not configured — skipping send to ${to} [${template}]`);
+        return;
+      }
+
+      // Build transporter from live DB config (always fresh — picks up admin panel changes)
+      const transporter = nodemailer.createTransport({
+        host:   smtp.host,
+        port:   smtp.port,
+        secure: smtp.port === 465,
+        auth:   { user: smtp.user, pass: smtp.pass },
+        tls:    { rejectUnauthorized: false },
+      });
+
+      // Compile Handlebars template
+      const html = this.compileTemplate(template, context);
+
+      await transporter.sendMail({
+        from:    smtp.from,
+        to,
+        subject,
+        html,
+      });
+
       this.logger.log(`Email sent → ${to} [${template}]`);
     } catch (err) {
       // Never throw — email failure must not break request flow
       this.logger.error(`Email failed → ${to} [${template}]: ${err?.message ?? err}`);
+    }
+  }
+
+  // ── Template compiler ────────────────────────────────────────
+  private compileTemplate(name: string, context: Record<string, any>): string {
+    try {
+      // Works in both dev (src/) and prod (dist/) thanks to nest-cli.json assets config
+      const tplPath = path.join(__dirname, 'templates', `${name}.hbs`);
+      const source  = fs.readFileSync(tplPath, 'utf8');
+      const compile = handlebars.compile(source);
+      return compile(context);
+    } catch (err) {
+      this.logger.error(`Template compile failed [${name}]: ${err?.message}`);
+      // Fallback: plain text
+      return `<pre>${JSON.stringify(context, null, 2)}</pre>`;
     }
   }
 }

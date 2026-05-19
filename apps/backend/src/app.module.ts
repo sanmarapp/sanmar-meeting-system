@@ -14,6 +14,7 @@ import { AuditModule }        from './audit/audit.module';
 import { SystemConfigModule } from './system-config/system-config.module';
 import { WhatsAppModule }     from './whatsapp/whatsapp.module';
 import { FairsModule }        from './fairs/fairs.module';
+import { ReportsModule }      from './reports/reports.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { FairsModule }        from './fairs/fairs.module';
     SystemConfigModule,
     WhatsAppModule,
     FairsModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers:   [AppService],

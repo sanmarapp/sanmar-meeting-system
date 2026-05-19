@@ -1,11 +1,12 @@
 import {
-  Injectable, NotFoundException, BadRequestException,
+  Injectable, NotFoundException, BadRequestException, ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
-import { AuditService } from '../audit/audit.service';
+import { AuditService }      from '../audit/audit.service';
 import { MailService }       from '../mail/mail.service';
 import { WhatsAppService }   from '../whatsapp/whatsapp.service';
+import { SystemConfigService } from '../system-config/system-config.service';
 import { CreateBookingDto }  from './dto/create-booking.dto';
 
 // ─── Status mapping (schema → frontend) ─────────────────────────
@@ -58,6 +59,7 @@ export class BookingsService {
     private audit: AuditService,
     private mail:      MailService,
     private whatsapp:  WhatsAppService,
+    private sysConfig: SystemConfigService,
   ) {}
 
   async findAll(query: {
@@ -111,6 +113,16 @@ export class BookingsService {
   }
 
   async create(dto: CreateBookingDto, userId: string) {
+    // ── Segment guard ─────────────────────────────────────────
+    const segments = await this.sysConfig.getSegments();
+    if (!segments.bookings) {
+      throw new ForbiddenException('Room bookings are currently disabled by the system administrator');
+    }
+    const meetingType = (dto.meetingType ?? 'internal').toLowerCase();
+    if (meetingType === 'external' && !segments.externalBookings) {
+      throw new ForbiddenException('External meeting bookings are currently disabled by the system administrator');
+    }
+
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: { department: true },

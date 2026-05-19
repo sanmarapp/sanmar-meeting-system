@@ -11,7 +11,7 @@ import {
   type FairStatus, type LeadInterestLevel, type LeadStatus,
   type CreateFairDto, type RegisterVisitorDto, type CaptureLeadDto, type UpdateLeadDto,
 } from '../services/fairService';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import { AppShell } from '../components/layout/AppShell';
 import { Header } from '../components/layout/Header';
 import { Button } from '../components/ui/Button';
@@ -19,7 +19,7 @@ import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { SkeletonTable } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
