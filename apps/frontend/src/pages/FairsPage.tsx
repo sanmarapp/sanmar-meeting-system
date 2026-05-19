@@ -629,11 +629,11 @@ function FairDetail({ fair, onBack }: FairDetailProps) {
             </div>
           </div>
 
-          {vLoading ? <SkeletonTable rows={6} cols={4} /> : filteredVisitors.length === 0 ? (
+          {vLoading ? <SkeletonTable rows={6} /> : filteredVisitors.length === 0 ? (
             <EmptyState
               title="No visitors yet"
-              description="Register the first visitor for this fair"
-              action={<Button variant="primary" size="sm" icon={<Plus size={14} />} onClick={() => setShowRegModal(true)}>Register Visitor</Button>}
+              hint="Register the first visitor for this fair"
+              action={{ label: 'Register Visitor', onClick: () => setShowRegModal(true) }}
             />
           ) : (
             <div className="rounded-xl border border-white/[0.06] overflow-hidden">
@@ -703,10 +703,10 @@ function FairDetail({ fair, onBack }: FairDetailProps) {
             </div>
           </div>
 
-          {lLoading ? <SkeletonTable rows={6} cols={5} /> : filteredLeads.length === 0 ? (
+          {lLoading ? <SkeletonTable rows={6} /> : filteredLeads.length === 0 ? (
             <EmptyState
               title="No leads yet"
-              description="Capture leads from registered visitors"
+              hint="Capture leads from registered visitors"
             />
           ) : (
             <div className="rounded-xl border border-white/[0.06] overflow-hidden">
@@ -893,7 +893,7 @@ export function FairsPage() {
     <AppShell>
       <Header
         title="Property Fairs"
-        actions={isAdmin ? (
+        action={isAdmin ? (
           <Button variant="primary" size="sm" icon={<Plus size={14} />}
             onClick={() => setShowCreateModal(true)}>
             New Fair
@@ -948,13 +948,8 @@ export function FairsPage() {
         ) : filtered.length === 0 ? (
           <EmptyState
             title={search ? 'No fairs match your search' : 'No fairs yet'}
-            description={search ? 'Try a different search term' : 'Create the first property fair to get started'}
-            action={isAdmin ? (
-              <Button variant="primary" size="sm" icon={<Plus size={14} />}
-                onClick={() => setShowCreateModal(true)}>
-                Create Fair
-              </Button>
-            ) : undefined}
+            hint={search ? 'Try a different search term' : 'Create the first property fair to get started'}
+            action={isAdmin ? { label: 'Create Fair', onClick: () => setShowCreateModal(true) } : undefined}
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

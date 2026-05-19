@@ -204,11 +204,11 @@ export function AuditLogPage() {
 
         {/* Table */}
         {isLoading ? (
-          <SkeletonTable rows={10} cols={5} />
+          <SkeletonTable rows={10} />
         ) : filtered.length === 0 ? (
           <EmptyState
             title="No audit entries found"
-            description={hasFilters ? 'Try adjusting your filters' : 'Audit entries will appear here as actions are taken in the system'}
+            hint={hasFilters ? 'Try adjusting your filters' : 'Audit entries will appear here as actions are taken in the system'}
           />
         ) : (
           <>

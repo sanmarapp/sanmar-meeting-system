@@ -312,7 +312,7 @@ function SegmentPanel() {
       <CardHeader
         title="Segment Controls"
         subtitle="Enable or disable entire functional segments system-wide."
-        icon={<ToggleLeft size={15} strokeWidth={1.75} />}
+        action={<ToggleLeft size={15} strokeWidth={1.75} className="text-neutral-400" />}
       />
       {isLoading || !current ? (
         <div className="space-y-3">
@@ -393,7 +393,7 @@ function ApprovalRoutingPanel() {
       <CardHeader
         title="Approval Routing"
         subtitle="Configure which booking types trigger the approval workflow."
-        icon={<SlidersHorizontal size={15} strokeWidth={1.75} />}
+        action={<SlidersHorizontal size={15} strokeWidth={1.75} className="text-neutral-400" />}
       />
       {isLoading || !current ? (
         <div className="space-y-3">

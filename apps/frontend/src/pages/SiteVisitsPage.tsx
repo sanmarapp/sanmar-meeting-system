@@ -27,10 +27,11 @@ const STATUS_TABS: { label: string; value: FilterStatus }[] = [
 ];
 
 const VISIT_STATUS_LABEL: Record<VisitStatus, string> = {
-  SCHEDULED:  'Scheduled',
-  COMPLETED:  'Completed',
-  CANCELLED:  'Cancelled',
-  NO_SHOW:    'No Show',
+  SCHEDULED:   'Scheduled',
+  COMPLETED:   'Completed',
+  CANCELLED:   'Cancelled',
+  NO_SHOW:     'No Show',
+  RESCHEDULED: 'Rescheduled',
 };
 
 const PAGE_SIZE = 15;

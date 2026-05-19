@@ -81,24 +81,5 @@ function App() {
   );
 }
 
-// ─── Coming soon placeholder ───────────────────────────────────
-import { AppShell } from './components/layout/AppShell';
-import { Header }   from './components/layout/Header';
-import { EmptyState } from './components/ui/EmptyState';
-
-function ComingSoon({ title }: { title: string }) {
-  return (
-    <AppShell>
-      <Header title={title} />
-      <div className="flex-1 flex items-center justify-center">
-        <EmptyState
-          variant="generic"
-          title={`${title} coming soon.`}
-          hint="This page is part of the next build phase."
-        />
-      </div>
-    </AppShell>
-  );
-}
 
 export default App;

@@ -26,7 +26,7 @@ const variantStyles: Record<BadgeVariant, { pill: string; dot: string }> = {
 
 // ─── Booking / Visit status helpers ───────────────────────────
 export type BookingStatus   = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'COMPLETED';
-export type VisitStatus     = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
+export type VisitStatus     = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW' | 'RESCHEDULED';
 
 export function bookingStatusVariant(status: BookingStatus): BadgeVariant {
   const map: Record<BookingStatus, BadgeVariant> = {
@@ -52,10 +52,11 @@ export function bookingStatusLabel(status: BookingStatus): string {
 
 export function visitStatusVariant(status: VisitStatus): BadgeVariant {
   const map: Record<VisitStatus, BadgeVariant> = {
-    SCHEDULED:  'info',
-    COMPLETED:  'success',
-    CANCELLED:  'neutral',
-    NO_SHOW:    'danger',
+    SCHEDULED:    'info',
+    COMPLETED:    'success',
+    CANCELLED:    'neutral',
+    NO_SHOW:      'danger',
+    RESCHEDULED:  'warning',
   };
   return map[status] ?? 'neutral';
 }

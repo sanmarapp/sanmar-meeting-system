@@ -143,8 +143,8 @@ function BookingsTab({ startDate, endDate }: { startDate: string; endDate: strin
     queryFn:  () => reportService.getBookingReport({ startDate, endDate }),
   });
 
-  if (isLoading) return <SkeletonTable rows={6} cols={4} />;
-  if (!data) return <EmptyState title="No booking data" description="No bookings found in this date range" />;
+  if (isLoading) return <SkeletonTable rows={6} />;
+  if (!data) return <EmptyState title="No booking data" hint="No bookings found in this date range" />;
 
   const { summary, byMeetingType, byRoom, byDepartment, dailyTrend } = data;
 
@@ -258,8 +258,8 @@ function SiteVisitsTab({ startDate, endDate }: { startDate: string; endDate: str
     queryFn:  () => reportService.getSiteVisitReport({ startDate, endDate }),
   });
 
-  if (isLoading) return <SkeletonTable rows={6} cols={4} />;
-  if (!data) return <EmptyState title="No site visit data" description="No site visits found in this date range" />;
+  if (isLoading) return <SkeletonTable rows={6} />;
+  if (!data) return <EmptyState title="No site visit data" hint="No site visits found in this date range" />;
 
   const { summary, byClientType, bySalesRep, bySite, bySource, weeklyTrend } = data;
 
@@ -394,8 +394,8 @@ function FairsTab({ startDate, endDate }: { startDate: string; endDate: string }
     queryFn:  () => reportService.getFairReport({ startDate, endDate }),
   });
 
-  if (isLoading) return <SkeletonTable rows={6} cols={4} />;
-  if (!data) return <EmptyState title="No fair data" description="No fairs found in this date range" />;
+  if (isLoading) return <SkeletonTable rows={6} />;
+  if (!data) return <EmptyState title="No fair data" hint="No fairs found in this date range" />;
 
   const { summary, byInterestLevel, byLeadStatus, fairs } = data;
 
@@ -521,7 +521,7 @@ export function ReportsPage() {
     <AppShell>
       <Header
         title="Reports"
-        actions={
+        action={
           <a href={exportUrl} download>
             <Button variant="outline" size="sm" icon={<Download size={13} />}>
               Export CSV
