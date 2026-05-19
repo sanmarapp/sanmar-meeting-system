@@ -96,7 +96,7 @@ export function BookingsPage() {
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ['bookings', queryParams],
     queryFn:  () => bookingService.list(queryParams),
-    placeholderData: (prev: typeof data) => prev,
+    placeholderData: (prev: any) => prev,
   });
 
   const bookings   = data?.data   ?? [];

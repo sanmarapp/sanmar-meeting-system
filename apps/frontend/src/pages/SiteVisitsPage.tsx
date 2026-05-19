@@ -75,7 +75,7 @@ export function SiteVisitsPage() {
   const { data: allVisits = [], isLoading, isFetching } = useQuery({
     queryKey: ['site-visits', queryParams],
     queryFn:  () => siteVisitService.list(queryParams),
-    placeholderData: (prev: typeof allVisits) => prev,
+    placeholderData: (prev: any) => prev,
   });
 
   const visits     = allVisits;
