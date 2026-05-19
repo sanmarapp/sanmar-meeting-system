@@ -118,8 +118,8 @@ export class BookingsService {
     if (!segments.bookings) {
       throw new ForbiddenException('Room bookings are currently disabled by the system administrator');
     }
-    const meetingType = (dto.meetingType ?? 'internal').toLowerCase();
-    if (meetingType === 'external' && !segments.externalBookings) {
+    const meetingType = (dto.meetingType ?? 'INTERNAL').toUpperCase();
+    if (meetingType === 'CLIENT' && !segments.externalBookings) {
       throw new ForbiddenException('External meeting bookings are currently disabled by the system administrator');
     }
 
@@ -163,7 +163,7 @@ export class BookingsService {
         endTime: end,
         durationMinutes,
         attendeesCount: dto.attendeeCount,
-        meetingType: (dto.meetingType as any) ?? 'internal',
+        meetingType: ((dto.meetingType ?? 'INTERNAL').toUpperCase()) as any,
         createdById: userId,
         departmentId: user.departmentId,
         status: status as any,

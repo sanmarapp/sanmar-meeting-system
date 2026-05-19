@@ -216,8 +216,11 @@ model Booking {
 }
 
 enum MeetingType {
-  internal // Internal team meetings
-  external // Client/vendor meetings
+  INTERNAL // Internal team meetings
+  CLIENT   // Client / external meetings
+  BOARD    // Board / executive sessions
+  TRAINING // Workshops and learning
+  OTHER    // Any other type
 }
 
 enum BookingStatus {
