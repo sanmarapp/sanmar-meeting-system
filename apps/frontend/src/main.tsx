@@ -8,6 +8,7 @@ import { NotificationProvider } from './contexts/NotificationContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import App from './App';
 import './index.css';
+import './styles/login-animation.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {

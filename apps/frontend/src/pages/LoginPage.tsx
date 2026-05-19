@@ -69,34 +69,46 @@ export function LoginPage() {
     >
       {/* ── Left brand panel ── */}
       <div
-        className="hidden lg:flex flex-col items-center justify-center flex-1 px-12"
+        className="hidden lg:flex flex-col items-center justify-center flex-1 relative overflow-hidden login-brand-panel"
         style={{ background: '#1A1614' }}
       >
-        {/* Wordmark */}
-        <img
-          src="/logo.svg"
-          alt="Sanmar"
-          className="w-[200px] h-auto"
-          draggable={false}
-        />
+        {/* CSS animated background — zero load time */}
+        <div className="login-bg-anim" aria-hidden="true">
+          <span className="orb orb-1" />
+          <span className="orb orb-2" />
+          <span className="orb orb-3" />
+          <span className="orb orb-4" />
+          <span className="grid-lines" />
+        </div>
 
-        {/* Divider */}
-        <div
-          className="mt-6 mb-5"
-          style={{
-            width: '40px',
-            height: '1px',
-            background: 'rgba(201,169,122,0.35)',
-          }}
-        />
+        {/* Content — above animation */}
+        <div className="relative z-10 flex flex-col items-center px-12">
+          {/* Wordmark */}
+          <img
+            src="/logo.svg"
+            alt="Sanmar"
+            className="w-[200px] h-auto"
+            draggable={false}
+          />
 
-        {/* Tagline */}
-        <p
-          className="text-[11px] font-normal uppercase tracking-[0.18em] text-center"
-          style={{ color: 'rgba(201,169,122,0.55)' }}
-        >
-          Meeting Room Booking
-        </p>
+          {/* Divider */}
+          <div
+            className="mt-6 mb-5"
+            style={{
+              width: '40px',
+              height: '1px',
+              background: 'rgba(201,169,122,0.35)',
+            }}
+          />
+
+          {/* Tagline */}
+          <p
+            className="text-[11px] font-normal uppercase tracking-[0.18em] text-center"
+            style={{ color: 'rgba(201,169,122,0.55)' }}
+          >
+            Meeting Room Booking
+          </p>
+        </div>
       </div>
 
       {/* ── Right form panel ── */}
