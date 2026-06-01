@@ -220,12 +220,12 @@ function VisitTableRow({ visit: v, onClick }: { visit: SiteVisit; onClick: () =>
         <div className="flex items-center gap-1.5 text-neutral-700">
           <MapPin size={13} strokeWidth={1.75} className="text-neutral-300 shrink-0" />
           <span className="truncate max-w-[160px]">
-            {v.site?.name ?? v.project?.name ?? '—'}
+            {v.site?.name ?? '—'}
           </span>
         </div>
-        {(v.site?.address || v.project?.location) && (
+        {(v.site?.address) && (
           <p className="text-xs text-neutral-400 mt-0.5 pl-[21px] truncate max-w-[160px]">
-            {v.site?.address ?? v.project?.location ?? ''}
+            {v.site?.address ?? ''}
           </p>
         )}
       </td>
