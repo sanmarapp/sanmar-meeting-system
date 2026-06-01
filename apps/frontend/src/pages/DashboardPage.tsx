@@ -101,7 +101,7 @@ function VisitRow({ v, onClick }: { v: SiteVisit; onClick: () => void }) {
         <p className="text-sm font-normal text-neutral-900 truncate leading-snug">{v.client.name}</p>
         <div className="flex items-center gap-1 mt-0.5">
           <MapPin size={10} strokeWidth={2} className="text-neutral-400 shrink-0" />
-          <p className="text-xs text-neutral-400 truncate">{v.site?.name ?? v.project?.name ?? '—'}</p>
+          <p className="text-xs text-neutral-400 truncate">{v.site?.name ?? '—'}</p>
         </div>
       </div>
 
