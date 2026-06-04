@@ -48,7 +48,7 @@ function BookingRow({ b, onClick }: { b: Booking; onClick: () => void }) {
         <p className="text-[11px] font-normal leading-tight" style={{ color: '#826B52' }}>
           {formatTime(b.startTime)}
         </p>
-        <p className="text-[10px] leading-tight" style={{ color: 'rgba(130,107,82,0.55)' }}>
+        <p className="text-[10px] leading-tight" style={{ color: 'var(--text-muted)' }}>
           {formatDateShort(b.startTime)}
         </p>
       </div>
