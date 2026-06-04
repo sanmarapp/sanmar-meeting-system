@@ -150,12 +150,13 @@ export function DashboardPage() {
 
   const { data: recentVisits, isLoading: loadingVisits } = useQuery({
     queryKey: ['site-visits', 'recent'],
-    queryFn:  () => siteVisitService.list({ limit: 5 }),
+    queryFn:  () => siteVisitService.list(),
   });
 
+    const thisMonthStart = new Date(); thisMonthStart.setDate(1); thisMonthStart.setHours(0,0,0,0);
   const todayCount   = todayBookings?.total   ?? 0;
   const pendingCount = pendingBookings?.total  ?? 0;
-  const visitCount   = recentVisits?.length   ?? 0;
+  const visitCount   = (recentVisits ?? []).filter(v => new Date(v.visitDate) >= thisMonthStart).length;
 
   const greeting = DASHBOARD.greeting(user?.name?.split(' ')[0] ?? 'there');
   const location = user?.locations?.[0]?.name ?? 'Dhaka HQ';
@@ -326,7 +327,7 @@ export function DashboardPage() {
               />
             ) : (
               <ul className="divide-y divide-neutral-75">
-                {recentVisits.map((v: SiteVisit) => (
+                {recentVisits.slice(0, 5).map((v: SiteVisit) => (
                   <VisitRow
                     key={v.id}
                     v={v}
