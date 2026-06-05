@@ -378,7 +378,7 @@ export function UsersPage() {
                         className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors"
                         style={{ background: active ? 'rgba(201,169,122,0.15)' : 'rgba(0,0,0,0.04)' }}
                       >
-                        <MapPin size={14} strokeWidth={1.75} style={{ color: active ? '#C9A97A' : '#9CA3AF' }} />
+                        <MapPin size={14} strokeWidth={1.75} style={{ color: active ? '#C9A97A' : 'var(--text-muted)' }} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-normal text-neutral-900">{loc.name}</p>
