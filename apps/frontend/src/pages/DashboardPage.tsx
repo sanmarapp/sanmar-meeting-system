@@ -45,7 +45,7 @@ function BookingRow({ b, onClick }: { b: Booking; onClick: () => void }) {
         className="shrink-0 w-[52px] text-center px-1.5 py-1 rounded-md"
         style={{ background: 'rgba(130,107,82,0.07)' }}
       >
-        <p className="text-[11px] font-normal leading-tight" style={{ color: '#826B52' }}>
+        <p className="text-[11px] font-normal leading-tight" style={{ color: 'var(--text-secondary)' }}>
           {formatTime(b.startTime)}
         </p>
         <p className="text-[10px] leading-tight" style={{ color: 'var(--text-muted)' }}>
@@ -86,12 +86,12 @@ function VisitRow({ v, onClick }: { v: SiteVisit; onClick: () => void }) {
       {/* Date block */}
       <div
         className="shrink-0 w-[52px] text-center px-1.5 py-1 rounded-md"
-        style={{ background: 'rgba(59,130,246,0.07)' }}
+        style={{ background: 'var(--info-bg)' }}
       >
-        <p className="text-[11px] font-normal leading-tight text-info-700">
+        <p className="text-[11px] font-normal leading-tight " style={{ color: 'var(--info-text)' }}>
           {new Date(v.visitDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
         </p>
-        <p className="text-[10px] leading-tight text-info-400">
+        <p className="text-[10px] leading-tight " style={{ color: 'var(--info)' }}>
           {new Date(v.visitDate).toLocaleDateString('en-GB', { weekday: 'short' })}
         </p>
       </div>
@@ -272,7 +272,7 @@ export function DashboardPage() {
                 <button
                   onClick={() => navigate('/bookings')}
                   className="flex items-center gap-1 text-xs font-normal transition-colors"
-                  style={{ color: '#826B52' }}
+                  style={{ color: 'var(--text-secondary)' }}
                 >
                   View all
                   <ArrowRight size={11} strokeWidth={2} />
@@ -310,7 +310,7 @@ export function DashboardPage() {
                 <button
                   onClick={() => navigate('/site-visits')}
                   className="flex items-center gap-1 text-xs font-normal transition-colors"
-                  style={{ color: '#826B52' }}
+                  style={{ color: 'var(--text-secondary)' }}
                 >
                   View all
                   <ArrowRight size={11} strokeWidth={2} />
