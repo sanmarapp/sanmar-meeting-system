@@ -331,10 +331,10 @@ function VisitTimeline({ status }: { status: string }) {
         return (
           <div key={step.key} className="flex items-center gap-2.5">
             <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
-              style={{ background: done ? (current ? '#826B52' : 'rgba(130,107,82,0.15)') : '#F5F3F0', border: current ? '2px solid #826B52' : 'none' }}>
+              style={{ background: done ? (current ? 'var(--brand)' : 'var(--gold-light)') : 'var(--bg-subtle)', border: current ? '2px solid var(--brand)' : 'none' }}>
               {done && !current && (
                 <svg viewBox="0 0 12 12" fill="none" className="w-3 h-3">
-                  <path d="M2.5 6l2.5 2.5 4.5-5" stroke="#826B52" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M2.5 6l2.5 2.5 4.5-5" stroke="#C9A97A" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               )}
               {current && <div className="w-1.5 h-1.5 rounded-full bg-primary-500" />}
