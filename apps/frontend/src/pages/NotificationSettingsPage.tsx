@@ -132,7 +132,7 @@ export function NotificationSettingsPage() {
             <button
               onClick={() => setSmtp(s => ({ ...s, enabled: !s.enabled }))}
               className="w-9 h-5 rounded-full flex items-center px-0.5 shrink-0 transition-colors duration-150"
-              style={{ background: smtp.enabled ? '#826B52' : '#E5E1DB' }}
+              style={{ background: smtp.enabled ? 'var(--brand)' : 'var(--border-strong)' }}
             >
               <div
                 className="w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-150"
@@ -193,7 +193,7 @@ export function NotificationSettingsPage() {
             <button
               onClick={() => setWa(w => ({ ...w, enabled: !w.enabled }))}
               className="w-9 h-5 rounded-full flex items-center px-0.5 shrink-0 transition-colors duration-150"
-              style={{ background: wa.enabled ? '#826B52' : '#E5E1DB' }}
+              style={{ background: wa.enabled ? 'var(--brand)' : 'var(--border-strong)' }}
             >
               <div
                 className="w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-150"
