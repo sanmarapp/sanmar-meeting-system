@@ -498,7 +498,7 @@ function ToggleRow({
       {/* Read-only toggle */}
       <div
         className="w-9 h-5 rounded-full flex items-center px-0.5 shrink-0"
-        style={{ background: checked ? '#826B52' : '#E5E1DB', opacity: disabled ? 0.6 : 1 }}
+        style={{ background: checked ? 'var(--brand)' : 'var(--border-strong)', opacity: disabled ? 0.6 : 1 }}
       >
         <div
           className="w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-150"
