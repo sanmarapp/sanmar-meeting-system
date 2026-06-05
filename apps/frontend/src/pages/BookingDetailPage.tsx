@@ -285,7 +285,7 @@ export function BookingDetailPage() {
                 <div className="flex items-center gap-3">
                   <div
                     className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-normal shrink-0"
-                    style={{ background: booking.status === 'APPROVED' ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)', color: booking.status === 'APPROVED' ? '#16a34a' : '#dc2626' }}
+                    style={{ background: booking.status === 'APPROVED' ? 'var(--success-bg)' : 'var(--danger-bg)', color: booking.status === 'APPROVED' ? 'var(--success)' : 'var(--danger)' }}
                   >
                     {booking.approver.name.split(' ').map(w => w[0]).slice(0, 2).join('')}
                   </div>
